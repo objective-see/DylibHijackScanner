@@ -1,0 +1,44 @@
+v1.0.0
+date: 3/19/2015
+about: initial release
+
+v1.0.1
+date: 3/19/2015
+about: fixed nil object insert into array (SecCertificateCopyCommonName, commandName was nil)
+
+v1.0.2
+date: 3/19/2015
+about:
+    fixed NULL pointer exception ([self.binaryData bytes] appeared to be NULL)
+    fixed versioning reporting and population in UI (from Info.plist)
+
+v1.0.3
+date: 3/20/2015
+about:
+    added extra checks in mach-O parser (validate header offset)
+
+v1.1
+date: 3/24/2015
+about:
+    updated mach-O parser to support little endian binaries
+    updated UI (preference window)
+    added save ability
+    added button to objective-see (logo @ buttom)
+    false positives reductions
+
+v1.1.1
+date: 3/24/2015
+about:
+   fixed false positives to check dylib path (not binary path)
+
+v.1.1.2
+date: 3/31/2015
+about:
+    fixed issue with exception popup deadlocking, if called on main thread
+
+
+
+
+
+
+
