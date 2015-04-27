@@ -6,6 +6,7 @@
 //
 
 #import "Binary.h"
+#import "AboutWindowController.h"
 #import <Cocoa/Cocoa.h>
 
 @class PrefsWindowController;
@@ -15,6 +16,9 @@
    
 
 }
+
+//initialized flag
+@property BOOL initialized;
 
 //array to hold binary objects that are in array
 @property (nonatomic, retain)NSMutableArray *tableContents;
@@ -61,6 +65,9 @@
 //number of vulnerable binaries
 @property NSUInteger vulnerableCount;
 
+//about window controller
+@property(nonatomic, retain)AboutWindowController* aboutWindowController;
+
 /* METHODS */
 
 //display error alert
@@ -76,5 +83,9 @@
 //handler for 'about' menu item and logo (bottom)
 // ->go to objective-see's website
 -(IBAction)about:(id)sender;
+
+//automatically invoked when user clicks logo
+// ->load objective-see's html page
+-(IBAction)logoButtonHandler:(id)sender;
 
 @end

@@ -71,7 +71,7 @@ NSString* const KNOWN_FPS[] = {
     if(YES == self.doFullScan)
     {
         //dbg msg
-        NSLog(@"OBJECTIVE-SEE INFO: scanning *all* binaries on file system");
+        //NSLog(@"OBJECTIVE-SEE INFO: scanning *all* binaries on file system");
         
         //get all binaries on file system
         [self scanBinariesFileSys];
@@ -82,14 +82,14 @@ NSString* const KNOWN_FPS[] = {
     else
     {
         //dbg msg
-        NSLog(@"OBJECTIVE-SEE INFO: getting binaries from process list");
+        //NSLog(@"OBJECTIVE-SEE INFO: getting binaries from process list");
         
         //get binaries from process list
         [self scanBinariesProcList];
     }
     
     //dbg msg
-    NSLog(@"OBJECTIVE-SEE INFO: scan complete!");
+    //NSLog(@"OBJECTIVE-SEE INFO: scan complete!");
 
     return;
 }
@@ -258,7 +258,7 @@ bail:
     }
     
     //dbg msg
-    NSLog(@"OBJECTIVE-SEE INFO: done scanning running processes/dylibs");
+    //NSLog(@"OBJECTIVE-SEE INFO: done scanning running processes/dylibs");
     
     return;
 }
@@ -306,7 +306,7 @@ bail:
     if(YES != [self parseBinary:binary])
     {
         //err msg
-        NSLog(@"OBJECTIVE-SEE ERROR: failed to parse %@", binary.path);
+        //NSLog(@"OBJECTIVE-SEE ERROR: failed to parse %@", binary.path);
         
         //bail
         goto bail;
@@ -346,7 +346,7 @@ bail:
         (YES == binary.isVulnerable) )
     {
         //dbg msg
-        NSLog(@"OBJECTIVE-SEE INFO: binary %@ has issue (type: %lu)!", binary.path, (unsigned long)binary.issueType);
+        //NSLog(@"OBJECTIVE-SEE INFO: binary %@ has issue (type: %lu)!", binary.path, (unsigned long)binary.issueType);
         
         //only report non-false positive
         if(YES != [self isFalsePositive:binary])
@@ -424,7 +424,7 @@ bail:
         if(YES == [self isWeakImportSuspicious:binary weakDylib:resolvedWeakDylib])
         {
             //dbg msg
-            NSLog(@"OBJECTIVE-SEE INFO: %@ appears to be a weak hijack", resolvedWeakDylib);
+            //NSLog(@"OBJECTIVE-SEE INFO: %@ appears to be a weak hijack", resolvedWeakDylib);
             
             //set hijack flag
             binary.isHijacked = YES;
@@ -519,7 +519,7 @@ bail:
         // ->multiple instance of same named dylib in run-search paths
         
         //dbg msg
-        NSLog(@"OBJECTIVE-SEE INFO: found %lu instance of %@ in run-path search directories", (unsigned long)dylibCount, importedDylib);
+        //NSLog(@"OBJECTIVE-SEE INFO: found %lu instance of %@ in run-path search dir", (unsigned long)dylibCount, importedDylib);
         
         //get binary's signing info
         binarySigningInfo = signingInfo(binary.path);
@@ -607,7 +607,7 @@ bail:
             // ->could be hijacked!
            
             //dbg msg
-            NSLog(@"OBJECTIVE-SEE INFO: %@ is vulnerable to a weak hijack", absoluteDylib);
+            //NSLog(@"OBJECTIVE-SEE INFO: %@ is vulnerable to a weak hijack", absoluteDylib);
             
             //set vulnerable flag
             binary.isVulnerable = YES;
@@ -672,7 +672,7 @@ bail:
             // ->dylib isn't found in first run-path search directory
         
             //dbg msg
-            NSLog(@"OBJECTIVE-SEE INFO: %@ isn't in first run-path search directory %@", absoluteDylib, firstRPathDirectory);
+            //NSLog(@"OBJECTIVE-SEE INFO: %@ isn't in first run-path search directory %@", absoluteDylib, firstRPathDirectory);
         
             //set vulnerable flag
             binary.isVulnerable = YES;

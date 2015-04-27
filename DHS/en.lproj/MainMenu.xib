@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6751" systemVersion="14C1510" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7702" systemVersion="14D136" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <deployment identifier="macosx"/>
         <development version="5000" identifier="xcode"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6751"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7702"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -54,6 +54,7 @@
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <tableView appearanceType="vibrantLight" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnSelection="YES" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" rowHeight="66" rowSizeStyle="automatic" viewBased="YES" id="537">
+                                    <rect key="frame" x="0.0" y="0.0" width="1003" height="0.0"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <size key="intercellSpacing" width="3" height="2"/>
                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -115,18 +116,18 @@
                                                             <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSActionTemplate" id="580"/>
                                                         </imageView>
                                                         <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" id="578">
-                                                            <rect key="frame" x="60" y="27" width="950" height="20"/>
+                                                            <rect key="frame" x="60" y="27" width="900" height="20"/>
                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                            <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Content Cell" id="579">
+                                                            <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" allowsUndo="NO" sendsActionOnEndEditing="YES" title="Item Path" id="579">
                                                                 <font key="font" size="13" name="Menlo-Regular"/>
                                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                             </textFieldCell>
                                                         </textField>
                                                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" tag="2" id="BUm-sJ-dtF">
-                                                            <rect key="frame" x="62" y="13" width="950" height="17"/>
+                                                            <rect key="frame" x="62" y="13" width="900" height="17"/>
                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="hijack detail" id="mds-5g-doD">
+                                                            <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" allowsUndo="NO" sendsActionOnEndEditing="YES" title="hijack detail" id="mds-5g-doD">
                                                                 <font key="font" size="11" name="Menlo-Regular"/>
                                                                 <color key="textColor" white="0.5" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -193,13 +194,8 @@
                         <rect key="frame" x="978" y="7" width="32" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     </progressIndicator>
-                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" alphaValue="0.10000000000000001" id="987-X0-C6c">
-                        <rect key="frame" x="-55" y="500" width="442" height="80"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="logo" id="Ijy-B0-QnC"/>
-                    </imageView>
                     <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" alphaValue="0.10000000000000001" id="9f2-EU-HWi">
-                        <rect key="frame" x="664" y="508" width="344" height="61"/>
+                        <rect key="frame" x="669" y="534" width="344" height="61"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="dhsText" id="BMc-Y2-jBu"/>
                     </imageView>
@@ -213,7 +209,7 @@
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" alphaValue="0.14999999999999999" id="HXX-If-fNU">
-                        <rect key="frame" x="926" y="508" width="83" height="14"/>
+                        <rect key="frame" x="931" y="534" width="83" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="version 1.0.0" id="NFT-re-jIg">
                             <font key="font" size="10" name="Menlo-Regular"/>
@@ -240,7 +236,7 @@
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                         <connections>
-                            <action selector="about:" target="494" id="B7G-di-aah"/>
+                            <action selector="logoButtonHandler:" target="494" id="2Kp-xR-Xf7"/>
                         </connections>
                     </button>
                 </subviews>
@@ -265,7 +261,6 @@
         <image name="NSActionTemplate" width="14" height="14"/>
         <image name="NSColorPanel" width="32" height="32"/>
         <image name="dhsText" width="711.5999755859375" height="85.919998168945312"/>
-        <image name="logo" width="666.239990234375" height="169.44000244140625"/>
         <image name="logoApple" width="194" height="236"/>
         <image name="logoAppleBG" width="194" height="236"/>
         <image name="reveal" width="256" height="256"/>

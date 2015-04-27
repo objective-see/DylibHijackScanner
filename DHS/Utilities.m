@@ -125,7 +125,7 @@ NSDictionary* signingInfo(NSString* path)
     if(STATUS_SUCCESS != status)
     {
         //err msg
-        NSLog(@"OBJECTIVE-SEE ERROR: SecStaticCodeCreateWithPath() failed on %@ with %d", path, status);
+        //NSLog(@"OBJECTIVE-SEE ERROR: SecStaticCodeCreateWithPath() failed on %@ with %d", path, status);
         
         //bail
         goto bail;
@@ -148,7 +148,7 @@ NSDictionary* signingInfo(NSString* path)
         if(STATUS_SUCCESS != status)
         {
             //err msg
-            NSLog(@"OBJECTIVE-SEE ERROR: SecCodeCopySigningInformation() failed on %@ with %d", path, status);
+            //NSLog(@"OBJECTIVE-SEE ERROR: SecCodeCopySigningInformation() failed on %@ with %d", path, status);
             
             //bail
             goto bail;

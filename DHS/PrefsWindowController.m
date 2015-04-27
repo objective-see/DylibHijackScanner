@@ -15,6 +15,14 @@
 @synthesize saveOutput;
 @synthesize weakHijackers;
 
+//automatically called when nib is loaded
+// ->center window
+-(void)awakeFromNib
+{
+    //center
+    [self.window center];
+}
+
 //automatically invoked when window is loaded
 // ->center it
 -(void)windowDidLoad
@@ -24,9 +32,6 @@
     
     //make white
     [self.window setBackgroundColor: NSColor.whiteColor];
-    
-    //center window
-    [[self window] center];
     
     return;
 }

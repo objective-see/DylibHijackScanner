@@ -16,42 +16,60 @@
 @implementation AppDelegate
 
 @synthesize window;
-@synthesize resultsTableView;
 @synthesize scanButton;
+@synthesize initialized;
 @synthesize scannerThread;
 @synthesize tableContents;
 @synthesize versionString;
 @synthesize scanButtonLabel;
+@synthesize resultsTableView;
 @synthesize progressIndicator;
+@synthesize aboutWindowController;
 @synthesize prefsWindowController;
 @synthesize vulnerableAppHeaderIndex;
 
 //TODO: scanner activity stopped when minimized...
 
 
+//center window
+// ->also make front
+-(void)awakeFromNib
+{
+    //center once!
+    if(YES != self.initialized)
+    {
+        //center
+        [self.window center];
+        
+        //set flag
+        self.initialized = YES;
+        
+        //disable highlighting
+        [self.resultsTableView setSelectionHighlightStyle:NSTableViewSelectionHighlightStyleNone];
+    }
+    
+    return;
+}
+
+//automatically invoked
+// init stuffz!
 -(void)applicationDidFinishLaunching:(NSNotification *)notification
 {
     //first thing...
     // ->install exception handlers!
     installExceptionHandlers();
     
-    /*
-    int a = 12;
-    int b = 0;
-    printf("%d", a/b);
-    */
-  
     //alloc table array
     tableContents = [[NSMutableArray alloc] init];
     
-    //make active
-    [NSApp activateIgnoringOtherApps:YES];
-    
-    //bring to front
-    [self.window makeKeyAndOrderFront:nil];
-    
     //center window
     [[self window] center];
+    
+    //make it key window
+    [self.window makeKeyAndOrderFront:self];
+    
+    //make window front
+    [NSApp activateIgnoringOtherApps:YES];
     
     //check that OS is supported
     if(YES != isSupportedOS())
@@ -146,7 +164,7 @@ bail:
 
 //table delegate method
 // ->return populated cell for row
-- (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
+-(NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
 {
     //binary object
     Binary* binary = nil;
@@ -161,6 +179,16 @@ bail:
     //detailed text field
     NSTextField* detailedTextField = nil;
     
+    //table cell
+    NSTableCellView *tableCell = nil;
+    
+    //tracking area
+    NSTrackingArea* trackingArea = nil;
+    
+    //flag indicating row has tracking area
+    // ->ensures we don't add 2x
+    BOOL hasTrackingArea = NO;
+    
     //grab row item from backing table array
     id rowContents = self.tableContents[row];
     
@@ -168,36 +196,35 @@ bail:
     if(YES == [self tableView:tableView isGroupRow:row])
     {
         //make a group cell
-        NSTableCellView *groupCell = [tableView makeViewWithIdentifier:@"GroupCell" owner:self];
-        if(nil == groupCell)
+        tableCell = [tableView makeViewWithIdentifier:@"GroupCell" owner:self];
+        if(nil == tableCell)
         {
-            //TODO: implement this?
+            //bail
+            goto bail;
         }
         
         //set it's text
-        [groupCell.textField setStringValue:rowContents];
+        [tableCell.textField setStringValue:rowContents];
         
         //header row for 'Hijack Applications'
         if(YES == [self.tableContents[row] isEqualToString:TABLE_HEADER_HIJACK])
         {
             //set image
-            groupCell.imageView.image = [NSImage imageNamed:@"virus"];
+            tableCell.imageView.image = [NSImage imageNamed:@"virus"];
             
             //set count
-            [[groupCell viewWithTag:TABLE_HEADER_TOTAL_TAG] setStringValue:[NSString stringWithFormat:@"total: %lu", (unsigned long)self.hijackCount]];
+            [[tableCell viewWithTag:TABLE_HEADER_TOTAL_TAG] setStringValue:[NSString stringWithFormat:@"total: %lu", (unsigned long)self.hijackCount]];
 
         }
         //header row for 'Vulnerable Applications'
         else
         {
             //set image
-            groupCell.imageView.image = [NSImage imageNamed:@"bug"];
+            tableCell.imageView.image = [NSImage imageNamed:@"bug"];
             
             //set count
-            [[groupCell viewWithTag:TABLE_HEADER_TOTAL_TAG] setStringValue:[NSString stringWithFormat:@"total: %lu", (unsigned long)self.vulnerableCount]];
+            [[tableCell viewWithTag:TABLE_HEADER_TOTAL_TAG] setStringValue:[NSString stringWithFormat:@"total: %lu", (unsigned long)self.vulnerableCount]];
         }
-        
-        return groupCell;
     }
     
     //initially empty rows
@@ -205,31 +232,47 @@ bail:
              (YES == [rowContents isEqualToString:@""]))
     {
         //make cell
-        NSTableCellView *cellView = [tableView makeViewWithIdentifier:@"ImageCell" owner:self];
+        tableCell = [tableView makeViewWithIdentifier:@"ImageCell" owner:self];
+        if(nil == tableCell)
+        {
+            //bail
+            goto bail;
+        }
         
         //hide main text
-        [cellView.textField setStringValue:@""];
+        [tableCell.textField setStringValue:@""];
         
         //hide image
-        cellView.imageView.image = nil;
+        tableCell.imageView.image = nil;
         
         //hide finder button
-        [[cellView viewWithTag:TABLE_ROW_FINDER_BUTTON] setHidden:YES];
+        [[tableCell viewWithTag:TABLE_ROW_FINDER_BUTTON] setHidden:YES];
         
         //hide hijack details
-        [[cellView viewWithTag:TABLE_ROW_SUB_TEXT_TAG] setStringValue:@""];
+        [[tableCell viewWithTag:TABLE_ROW_SUB_TEXT_TAG] setStringValue:@""];
         
-        return cellView;
-    
     }
     
     //content rows
     // ->fill with content :)
     else
     {
-        NSTableCellView *cellView = [tableView makeViewWithIdentifier:@"ImageCell" owner:self];
+        //make cell
+        tableCell = [tableView makeViewWithIdentifier:@"ImageCell" owner:self];
+        if(nil == tableCell)
+        {
+            //bail
+            goto bail;
+        }
         
-        //cellView.u = UITableViewCellSelectionStyleNone;
+        //check if cell was previously used (by checking the item name)
+        // ->if so, set flag to indicated tracking area does not need to be added
+        if( (YES != [tableCell.textField.stringValue isEqualToString:@""]) &&
+            (YES != [tableCell.textField.stringValue isEqualToString:@"Item Path"]) )
+        {
+            //set flag
+            hasTrackingArea = YES;
+        }
         
         //item in table array is a binary object
         // ->grab that
@@ -237,10 +280,10 @@ bail:
         
         //process binary path
         // ->make sure its fits in window!
-        binaryPath = stringByTruncatingString(cellView.textField, binary.path, cellView.frame.size.width-100);
+        binaryPath = stringByTruncatingString(tableCell.textField, binary.path, tableCell.frame.size.width-100);
         
         //set main text to binary path
-        [cellView.textField setStringValue:binaryPath];
+        [tableCell.textField setStringValue:binaryPath];
         
         //set detailed (sub) text for hijack
         if(YES == binary.isHijacked)
@@ -274,7 +317,7 @@ bail:
         }
         
         //grab detailed text field
-        detailedTextField = [cellView viewWithTag:TABLE_ROW_SUB_TEXT_TAG];
+        detailedTextField = [tableCell viewWithTag:TABLE_ROW_SUB_TEXT_TAG];
         
         //make sure text is gray
         detailedTextField.textColor = [NSColor grayColor];
@@ -284,20 +327,36 @@ bail:
         
         //set image
         // ->app's icon
-        cellView.imageView.image = getIconForBinary(((Binary*)rowContents).path);
+        tableCell.imageView.image = getIconForBinary(((Binary*)rowContents).path);
         
         //set detailed text
         [detailedTextField setStringValue:details];
         
         //show finder button
-        [[cellView viewWithTag:TABLE_ROW_FINDER_BUTTON] setHidden:NO];
-    
-        return cellView;
+        [[tableCell viewWithTag:TABLE_ROW_FINDER_BUTTON] setHidden:NO];
+        
+        //only have to add tracking area once
+        // ->add it the first time
+        if(NO == hasTrackingArea)
+        {
+            //init tracking area
+            // ->for 'show' button
+            trackingArea = [[NSTrackingArea alloc] initWithRect:[[tableCell viewWithTag:TABLE_ROW_FINDER_BUTTON] bounds]
+             options:(NSTrackingInVisibleRect | NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways) owner:self userInfo:nil];
+            
+            //add tracking area to 'show' button
+            [[tableCell viewWithTag:TABLE_ROW_FINDER_BUTTON] addTrackingArea:trackingArea];
+        }
+
     }
     
-    return nil;
+//bail
+bail:
+    
+    return tableCell;
 }
 
+/*
 //table delegate method
 // ->invoke when user clicks row (to select)
 //   if its a content row, allow the selection (and handle text highlighting issues)
@@ -347,6 +406,7 @@ bail:
     
     return shouldSelect;
 }
+*/
 
 //table delegate method
 // ->determine if a table row is a group ('header') row
@@ -781,6 +841,74 @@ bail:
     return;
 }
 
+//automatically invoked when mouse entered
+-(void)mouseEntered:(NSEvent*)theEvent
+{
+    //mouse entered
+    // ->highlight (visual) state
+    [self buttonAppearance:theEvent shouldReset:NO];
+    
+    return;
+}
+
+//automaticall invoked when mouse exits
+-(void)mouseExited:(NSEvent*)theEvent
+{
+    //mouse exited
+    // ->so reset button to original (visual) state
+    [self buttonAppearance:theEvent shouldReset:YES];
+    
+    return;
+}
+
+//set or unset button's highlight
+-(void)buttonAppearance:(NSEvent*)theEvent shouldReset:(BOOL)shouldReset
+{
+    //mouse point
+    NSPoint mousePoint = {0};
+    
+    //row index
+    NSUInteger rowIndex = -1;
+    
+    //current row
+    NSTableCellView* currentRow = nil;
+    
+    //grab mouse point
+    mousePoint = [self.resultsTableView convertPoint:[theEvent locationInWindow] fromView:nil];
+    
+    //compute row indow
+    rowIndex = [self.resultsTableView rowAtPoint:mousePoint];
+    
+    //sanity check
+    if(-1 == rowIndex)
+    {
+        //bail
+        goto bail;
+    }
+    
+    //get row that's about to be selected
+    currentRow = [self.resultsTableView viewAtColumn:0 row:rowIndex makeIfNecessary:YES];
+    
+    //reset back to default
+    if(YES == shouldReset)
+    {
+        //set image
+        [[currentRow viewWithTag:TABLE_ROW_FINDER_BUTTON] setImage:[NSImage imageNamed:@"reveal"]];
+    }
+    //highlight button
+    else
+    {
+        //set image
+        [[currentRow viewWithTag:TABLE_ROW_FINDER_BUTTON] setImage:[NSImage imageNamed:@"revealOver"]];
+    }
+
+//bail
+bail:
+    
+    return;
+}
+
+
 //save results to disk
 // ->JSON dumped to current directory
 -(void)saveResults
@@ -947,7 +1075,10 @@ bail:
     
     //make it modal
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        
+        //make modal
         [[NSApplication sharedApplication] runModalForWindow:prefsWindowController.window];
+        
     });
 
     
@@ -957,11 +1088,31 @@ bail:
 
 //menu handler
 // ->invoked when user clicks 'About/Info
-- (IBAction)about:(id)sender
+-(IBAction)about:(id)sender
+{
+    //alloc/init settings window
+    if(nil == self.aboutWindowController)
+    {
+        //alloc/init
+        aboutWindowController = [[AboutWindowController alloc] initWithWindowNibName:@"AboutWindow"];
+    }
+    
+    //center window
+    [[self.aboutWindowController window] center];
+    
+    //show it
+    [self.aboutWindowController showWindow:self];
+    
+    return;
+}
+
+//automatically invoked when user clicks logo
+// ->load objective-see's html page
+-(IBAction)logoButtonHandler:(id)sender
 {
     //open URL
     // ->invokes user's default browser
-    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"http://objective-see.com/products/dhs.html"]];
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://objective-see.com"]];
     
     return;
 }
