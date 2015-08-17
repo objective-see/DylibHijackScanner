@@ -280,7 +280,7 @@ bail:
         
         //process binary path
         // ->make sure its fits in window!
-        binaryPath = stringByTruncatingString(tableCell.textField, binary.path, tableCell.frame.size.width-100);
+        binaryPath = stringByTruncatingString(tableCell.textField, binary.path, tableCell.frame.size.width-90);
         
         //set main text to binary path
         [tableCell.textField setStringValue:binaryPath];
@@ -323,7 +323,7 @@ bail:
         detailedTextField.textColor = [NSColor grayColor];
         
         //make sure detailed text isn't too long
-        details = stringByTruncatingString(detailedTextField, details, detailedTextField.frame.size.width-100);
+        details = stringByTruncatingString(detailedTextField, details, detailedTextField.frame.size.width);
         
         //set image
         // ->app's icon
@@ -487,7 +487,7 @@ bail:
         if(YES == self.prefsWindowController.fullScan)
         {
             //alloc/init alert
-            fullScanAlert = [NSAlert alertWithMessageText:@"a full system scan takes some time..." defaultButton:@"OK" alternateButton:nil otherButton:nil informativeTextWithFormat:@"relax while we do the hard work!"];
+            fullScanAlert = [NSAlert alertWithMessageText:@"a full system scan takes some time" defaultButton:@"OK" alternateButton:nil otherButton:nil informativeTextWithFormat:@"please relax while DHS crunches away :)"];
             
             //and show it
             [fullScanAlert runModal];
@@ -1070,18 +1070,9 @@ bail:
         prefsWindowController = [[PrefsWindowController alloc] initWithWindowNibName:@"PrefsWindow"];
     }
 
-    //show it
-    [self.prefsWindowController showWindow:self];
-    
-    //make it modal
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        
-        //make modal
-        [[NSApplication sharedApplication] runModalForWindow:prefsWindowController.window];
-        
-    });
+    //show it as modal
+    [[NSApplication sharedApplication] runModalForWindow:prefsWindowController.window];
 
-    
     return;
 }
 #pragma mark Menu Handler(s) #pragma mark -
