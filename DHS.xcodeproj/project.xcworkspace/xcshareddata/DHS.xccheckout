@@ -10,6 +10,8 @@
 	<string>DHS</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
+		<key>7564E3FECD3AE625755C217749E31B3EE2B69E20</key>
+		<string>https://bitbucket.org/objective-see/macho.git</string>
 		<key>761C0DB3C039BC5B2D73FEB80F04373AFE2CE412</key>
 		<string>https://bitbucket.org/objective-see/dhs.git</string>
 	</dict>
@@ -17,6 +19,8 @@
 	<string>DHS.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
+		<key>7564E3FECD3AE625755C217749E31B3EE2B69E20</key>
+		<string>../../../MachO</string>
 		<key>761C0DB3C039BC5B2D73FEB80F04373AFE2CE412</key>
 		<string>../..</string>
 	</dict>
@@ -35,6 +39,14 @@
 			<string>761C0DB3C039BC5B2D73FEB80F04373AFE2CE412</string>
 			<key>IDESourceControlWCCName</key>
 			<string>dylibHijackScanner</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>7564E3FECD3AE625755C217749E31B3EE2B69E20</string>
+			<key>IDESourceControlWCCName</key>
+			<string>MachO</string>
 		</dict>
 	</array>
 </dict>

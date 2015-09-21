@@ -20,7 +20,10 @@
 NSString* const KNOWN_FPS[] = {
     @"/Applications/Microsoft Messenger.app/Contents/Frameworks/mbukernel.framework/Versions/14/mbukernel",
     @"/Applications/Microsoft Office 2011/Office/mbuinstrument.framework/Versions/14/mbuinstrument",
-    };
+    @"/Applications/MATLAB_R2014b.app/cefclient/bin/maci64/cefclient.app/Contents/MacOS/libcef.dylib",
+    @"/Library/Frameworks/OSXFUSE.framework/Versions/A/OSXFUSE",
+    @"/Applications/SmartConverter.app/Contents/Frameworks/Sparkle.framework/Versions/A/Sparkle"
+};
 
 @implementation Scanner
 
@@ -88,9 +91,6 @@ NSString* const KNOWN_FPS[] = {
         [self scanBinariesProcList];
     }
     
-    //dbg msg
-    //NSLog(@"OBJECTIVE-SEE INFO: scan complete!");
-
     return;
 }
 

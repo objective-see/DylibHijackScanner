@@ -28,8 +28,6 @@
 @synthesize prefsWindowController;
 @synthesize vulnerableAppHeaderIndex;
 
-//TODO: scanner activity stopped when minimized...
-
 
 //center window
 // ->also make front
@@ -108,6 +106,15 @@
     // ->ensures our 'windowWillClose' method, which has logic to fully exit app
     self.window.delegate = self;
     
+    //alloc/init prefs
+    prefsWindowController = [[PrefsWindowController alloc] initWithWindowNibName:@"PrefsWindow"];
+    
+    //register defaults
+    [self.prefsWindowController registerDefaults];
+    
+    //load prefs
+    [self.prefsWindowController loadPreferences];
+    
     /*
     
     Scanner* scannerObj = [[Scanner alloc] init];
@@ -136,13 +143,38 @@ bail:
     return;
 }
 
+//automatically invoked when window is un-minimized
+// since the progress indicator is stopped (bug?), restart it
+-(void)windowDidDeminiaturize:(NSNotification *)notification
+{
+    //make sure scan is going on
+    // ->and then restart spinner
+    if(YES == [self.scannerThread isExecuting])
+    {
+        //show
+        [self.progressIndicator setHidden:NO];
+        
+        //start spinner
+        [self.progressIndicator startAnimation:nil];
+    }
+    
+    //scan pau
+    // ->make sure spinner is hidden
+    else
+    {
+        //stop spinner
+        [self.progressIndicator stopAnimation:nil];
+        
+        //hide progress indicator
+        self.progressIndicator.hidden = YES;
+    }
+    
+    return;
+}
+
 //display alert about OS not being supported
 -(void)showUnsupportedAlert
 {
-    //response
-    // ->index of button click
-    NSModalResponse response = 0;
-    
     //alert box
     NSAlert* fullScanAlert = nil;
     
@@ -150,7 +182,7 @@ bail:
     fullScanAlert = [NSAlert alertWithMessageText:[NSString stringWithFormat:@"OS X %@ is not officially supported", [[NSProcessInfo processInfo] operatingSystemVersionString]] defaultButton:@"Ok" alternateButton:nil otherButton:nil informativeTextWithFormat:@"sorry for the inconvenience!"];
     
     //and show it
-    response = [fullScanAlert runModal];
+    [fullScanAlert runModal];
     
     return;
 }
@@ -169,11 +201,7 @@ bail:
     //binary object
     Binary* binary = nil;
     
-    //binary path
-    // ->might be truncated so need this var
-    NSString* binaryPath = nil;
-    
-    //detailed (sub) text
+    //details
     NSString* details = nil;
     
     //detailed text field
@@ -250,7 +278,6 @@ bail:
         
         //hide hijack details
         [[tableCell viewWithTag:TABLE_ROW_SUB_TEXT_TAG] setStringValue:@""];
-        
     }
     
     //content rows
@@ -278,12 +305,8 @@ bail:
         // ->grab that
         binary = (Binary*)rowContents;
         
-        //process binary path
-        // ->make sure its fits in window!
-        binaryPath = stringByTruncatingString(tableCell.textField, binary.path, tableCell.frame.size.width-90);
-        
         //set main text to binary path
-        [tableCell.textField setStringValue:binaryPath];
+        [tableCell.textField setStringValue:binary.path];
         
         //set detailed (sub) text for hijack
         if(YES == binary.isHijacked)
@@ -291,12 +314,14 @@ bail:
             //set detailed text for rpath hijack
             if(ISSUE_TYPE_RPATH == binary.issueType)
             {
+                //set
                 details = [NSString stringWithFormat:@"rpath hijacker: %@", binary.issueItem];
                 
             }
             //set detailed text for weak hijack
             else
             {
+                //set
                 details = [NSString stringWithFormat:@"weak hijacker: %@", binary.issueItem];
             }
         }
@@ -306,12 +331,14 @@ bail:
             //set detailed text for rpath issue
             if(ISSUE_TYPE_RPATH == binary.issueType)
             {
+                //set
                 details = [NSString stringWithFormat:@"rpath vulnerability: %@", binary.issueItem];
                 
             }
             //set detailed text for weak issue
             else
             {
+                //set
                 details = [NSString stringWithFormat:@"weak vulnerability: %@", binary.issueItem];
             }
         }
@@ -321,9 +348,6 @@ bail:
         
         //make sure text is gray
         detailedTextField.textColor = [NSColor grayColor];
-        
-        //make sure detailed text isn't too long
-        details = stringByTruncatingString(detailedTextField, details, detailedTextField.frame.size.width);
         
         //set image
         // ->app's icon
@@ -587,21 +611,12 @@ bail:
 // ->disable settings, set text 'stop scan', etc...
 -(void)startScanUI
 {
-    //status msg's frame
-    CGRect newFrame = {};
-    
     //if scan was previous run
-    // ->will need to shift status msg back over
+    // ->reset msg constraint
     if(YES != [[self.statusText stringValue] isEqualToString:@""])
     {
-        //grab status msg's frame
-        newFrame = self.statusText.frame;
-        
-        //shift it over (since activity spinner is about to be shown)
-        newFrame.origin.x -= 50;
-        
-        //update status msg w/ new frame
-        self.statusText.frame = newFrame;
+        //reset
+        self.statusTextConstraint.constant = 56;
     }
 
     //show progress indicator
@@ -678,23 +693,14 @@ bail:
 // ->set text back to 'start scan', etc...
 -(void)stopScanUI:(NSString*)statusMsg
 {
-    //status msg's frame
-    CGRect newFrame = {};
-    
     //stop spinner
     [self.progressIndicator stopAnimation:nil];
     
     //hide progress indicator
     self.progressIndicator.hidden = YES;
     
-    //grab status msg's frame
-    newFrame = self.statusText.frame;
-    
-    //shift it over (since activity spinner is gone)
-    newFrame.origin.x += 50;
-    
-    //update status msg w/ new frame
-    self.statusText.frame = newFrame;
+    //shift over status msg
+    self.statusTextConstraint.constant = 10;
     
     //set status msg
     [self.statusText setStringValue:statusMsg];
@@ -832,7 +838,6 @@ bail:
         
         //set 'total' text field
         [[headerRow viewWithTag:TABLE_HEADER_TOTAL_TAG] setStringValue:[NSString stringWithFormat:@"total: %lu", (unsigned long)self.vulnerableCount]];
-
     }
     
     //force table re-draw
@@ -1039,37 +1044,10 @@ bail:
     return;
 }
 
-//button handler
-// ->invoked when user checks/unchecks 'weak hijack detection' checkbox
--(IBAction)hijackDetectionOptions:(id)sender
-{
-    //alert
-    NSAlert* detectionAlert = nil;
-    
-    //check if user clicked (on)
-    if(NSOnState == ((NSButton*)sender).state)
-    {
-        //alloc/init alert
-        detectionAlert = [NSAlert alertWithMessageText:@"This might produce false positives" defaultButton:@"OK" alternateButton:nil otherButton:nil informativeTextWithFormat:@"please consult an expert if any results are found!"];
-        
-        //show it
-        [detectionAlert runModal];
-    }
-    
-    return;
-}
-
 //automatically invoked when user clicks gear icon
 // ->show preferences
 -(IBAction)showPreferences:(id)sender
 {
-    //alloc/init settings window
-    if(nil == self.prefsWindowController)
-    {
-        //alloc/init
-        prefsWindowController = [[PrefsWindowController alloc] initWithWindowNibName:@"PrefsWindow"];
-    }
-
     //show it as modal
     [[NSApplication sharedApplication] runModalForWindow:prefsWindowController.window];
 

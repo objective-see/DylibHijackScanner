@@ -23,10 +23,6 @@ NSMutableArray* loadedBinaries();
 
 /* METHODS */
 
-//if string is too long to fit into a the text field
-// ->truncate and insert ellipises before /file
-NSString* stringByTruncatingString(NSTextField* textField, NSString* string, float width);
-
 //get an icon for a process
 // ->for apps, this will be app's icon, otherwise just a standard system one
 NSImage* getIconForBinary(NSString* binary);

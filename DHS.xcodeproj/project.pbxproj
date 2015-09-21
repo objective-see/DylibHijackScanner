@@ -12,6 +12,7 @@
 		1D21BC5B172AF43D009D1CFD /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D21BC5A172AF43D009D1CFD /* main.m */; };
 		1D21BC62172AF43D009D1CFD /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D21BC61172AF43D009D1CFD /* AppDelegate.m */; };
 		1D21BC65172AF43D009D1CFD /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1D21BC63172AF43D009D1CFD /* MainMenu.xib */; };
+		7DEA33791B9D30ED0018C81E /* MachO.m in Sources */ = {isa = PBXBuildFile; fileRef = 7DEA33781B9D30ED0018C81E /* MachO.m */; };
 		CD0869101ABD45AA00307871 /* changeLog.txt in Resources */ = {isa = PBXBuildFile; fileRef = CD08690F1ABD45AA00307871 /* changeLog.txt */; };
 		CD0869131ABFD0C100307871 /* settings.png in Resources */ = {isa = PBXBuildFile; fileRef = CD0869111ABFD0C100307871 /* settings.png */; };
 		CD0869141ABFD0C100307871 /* settingsBG.png in Resources */ = {isa = PBXBuildFile; fileRef = CD0869121ABFD0C100307871 /* settingsBG.png */; };
@@ -36,7 +37,6 @@
 		CD76209E1AEE0A0E00CFCB68 /* AboutWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = CD76209C1AEE0A0E00CFCB68 /* AboutWindow.xib */; };
 		CD7620A01AEE0A3800CFCB68 /* dhsIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = CD76209F1AEE0A3800CFCB68 /* dhsIcon.png */; };
 		CD8388691AA9762B000EB098 /* Exception.m in Sources */ = {isa = PBXBuildFile; fileRef = CD8388681AA9762B000EB098 /* Exception.m */; };
-		CDAB98A71AEC293C00C75B4B /* MachO.m in Sources */ = {isa = PBXBuildFile; fileRef = CDAB98A61AEC293C00C75B4B /* MachO.m */; };
 		CDB4266C1A8C8CCA00749E80 /* bug.png in Resources */ = {isa = PBXBuildFile; fileRef = CDB4266A1A8C8CCA00749E80 /* bug.png */; };
 		CDB4266D1A8C8CCA00749E80 /* virus.png in Resources */ = {isa = PBXBuildFile; fileRef = CDB4266B1A8C8CCA00749E80 /* virus.png */; };
 		CDFB64411AA6E51C00D998E1 /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = CDFB64401AA6E51C00D998E1 /* logo.png */; };
@@ -57,6 +57,8 @@
 		1D21BC60172AF43D009D1CFD /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		1D21BC61172AF43D009D1CFD /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		1D21BC64172AF43D009D1CFD /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		7DEA33771B9D30ED0018C81E /* MachO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MachO.h; path = ../../MachO/MachOParser/MachO.h; sourceTree = "<group>"; };
+		7DEA33781B9D30ED0018C81E /* MachO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MachO.m; path = ../../MachO/MachOParser/MachO.m; sourceTree = "<group>"; };
 		CD08690F1ABD45AA00307871 /* changeLog.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = changeLog.txt; sourceTree = "<group>"; };
 		CD0869111ABFD0C100307871 /* settings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = settings.png; path = images/settings.png; sourceTree = "<group>"; };
 		CD0869121ABFD0C100307871 /* settingsBG.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = settingsBG.png; path = images/settingsBG.png; sourceTree = "<group>"; };
@@ -88,8 +90,6 @@
 		CD76209F1AEE0A3800CFCB68 /* dhsIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dhsIcon.png; path = images/dhsIcon.png; sourceTree = "<group>"; };
 		CD8388671AA9762A000EB098 /* Exception.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Exception.h; sourceTree = "<group>"; };
 		CD8388681AA9762B000EB098 /* Exception.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Exception.m; sourceTree = "<group>"; };
-		CDAB98A51AEC293C00C75B4B /* MachO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MachO.h; path = ../../MachOParser/MachOParser/MachO.h; sourceTree = "<group>"; };
-		CDAB98A61AEC293C00C75B4B /* MachO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MachO.m; path = ../../MachOParser/MachOParser/MachO.m; sourceTree = "<group>"; };
 		CDB4266A1A8C8CCA00749E80 /* bug.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = bug.png; path = images/bug.png; sourceTree = "<group>"; };
 		CDB4266B1A8C8CCA00749E80 /* virus.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = virus.png; path = images/virus.png; sourceTree = "<group>"; };
 		CDFB64401AA6E51C00D998E1 /* logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = logo.png; path = images/logo.png; sourceTree = "<group>"; };
@@ -217,8 +217,8 @@
 		CDAB98A41AEC291C00C75B4B /* MachOParser */ = {
 			isa = PBXGroup;
 			children = (
-				CDAB98A51AEC293C00C75B4B /* MachO.h */,
-				CDAB98A61AEC293C00C75B4B /* MachO.m */,
+				7DEA33771B9D30ED0018C81E /* MachO.h */,
+				7DEA33781B9D30ED0018C81E /* MachO.m */,
 			);
 			name = MachOParser;
 			sourceTree = "<group>";
@@ -312,9 +312,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7DEA33791B9D30ED0018C81E /* MachO.m in Sources */,
 				CD8388691AA9762B000EB098 /* Exception.m in Sources */,
 				1D21BC5B172AF43D009D1CFD /* main.m in Sources */,
-				CDAB98A71AEC293C00C75B4B /* MachO.m in Sources */,
 				1D21BC62172AF43D009D1CFD /* AppDelegate.m in Sources */,
 				CD6095601A8342A200E091CD /* Scanner.m in Sources */,
 				CD60956E1A85F81F00E091CD /* Binary.m in Sources */,

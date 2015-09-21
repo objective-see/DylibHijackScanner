@@ -38,14 +38,12 @@
 
 @property (weak) IBOutlet NSButton *scanButton;
 @property (weak) IBOutlet NSTextField *scanButtonLabel;
--(IBAction)scanButtonHandler:(id)sender;
+
 
 //spinner
 @property (weak) IBOutlet NSProgressIndicator *progressIndicator;
 @property (weak) IBOutlet NSTextField *statusText;
 
-//button handler for 'weak hijack detection'
-//-(IBAction)hijackDetectionOptions:(id)sender;
 
 //gear (show prefs) button
 @property (weak) IBOutlet NSButton *showPreferences;
@@ -68,7 +66,13 @@
 //about window controller
 @property(nonatomic, retain)AboutWindowController* aboutWindowController;
 
+//constraint for status text
+@property (weak) IBOutlet NSLayoutConstraint *statusTextConstraint;
+
 /* METHODS */
+
+//handler for scan button
+-(IBAction)scanButtonHandler:(id)sender;
 
 //display error alert
 -(void)showUnsupportedAlert;

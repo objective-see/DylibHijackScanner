@@ -1,5 +1,14 @@
 DYLIB HIJACK SCANNER (DHS) CHANGELOG
 
+
+VERSION 1.2.0 (9/7/2015)
+ app now fully resizable
+ preferences persistently saved
+ compatible with El Capitan 
+ false positive reductions
+ minor UI improvements 
+
+
 VERSION 1.1.5 (4/27/2015)
  added more sanity checks to MachO parser
  minor UI improvements  

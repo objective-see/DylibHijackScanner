@@ -78,9 +78,24 @@
 //id (tag) for 'find in finder' button
 #define TABLE_ROW_FINDER_BUTTON 3
 
-//ellipis
-// ->for long paths...
-#define ELLIPIS @"..."
+//disabled state
+#define STATE_DISABLED 0
+
+//enabled state
+#define STATE_ENABLED 1
+
+//prefs
+// ->full system scan
+#define PREF_FULL_SYSTEM_SCAN @"fullSystemScan"
+
+//prefs
+// ->weak hijacker detection
+#define PREF_WEAK_HIJACKER_DETECTION @"weakHijackerDetection"
+
+//prefs
+// ->save output
+#define PREF_SAVE_OUTPUT @"saveOutput"
+
 
 //key for JSON output
 #define KEY_ITEM @"item"

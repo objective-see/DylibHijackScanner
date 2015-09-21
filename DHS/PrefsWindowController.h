@@ -15,14 +15,8 @@
 
 //buttons
 @property (weak) IBOutlet NSButton *fullScanButton;
-
 @property (weak) IBOutlet NSButton *weakHijackerButton;
 @property (weak) IBOutlet NSButton *saveOutputButton;
-
-//'OK' button handler
-// ->save prefs and close window
--(IBAction)closeWindow:(id)sender;
-
 
 //full scan
 @property BOOL fullScan;
@@ -35,5 +29,19 @@
 
 /* METHODS */
 
+//register default prefs
+// ->only used if user hasn't set any
+-(void)registerDefaults;
+
+//load (persistence) preferences from file system
+-(void)loadPreferences;
+
+//'OK' button handler
+// ->save prefs and close window
+-(IBAction)closeWindow:(id)sender;
+
+//button handler
+// ->invoked when user checks/unchecks 'weak hijack detection' checkbox
+-(IBAction)hijackDetectionOptions:(id)sender;
 
 @end
