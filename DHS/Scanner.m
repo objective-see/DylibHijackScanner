@@ -756,9 +756,6 @@ bail:
     //prefix to remove
     NSString* prefix = nil;
     
-    //default to existing path
-    resolvedPath = unresolvedPath;
-    
     //get prefix
     // ->'@executable_path'
     if(YES == [unresolvedPath hasPrefix:EXECUTABLE_PATH])
