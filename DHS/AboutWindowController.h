@@ -22,6 +22,6 @@
 
 //invoked when user clicks 'more info' button
 // ->open KK's webpage
-- (IBAction)moreInfo:(id)sender;
+-(IBAction)moreInfo:(id)sender;
 
 @end

@@ -277,7 +277,8 @@ bail:
     machoParser = [[MachO alloc] init];
     
     //parse
-    if(YES != [machoParser parse:binary.path])
+    // ->but don't do packed/encryption checks
+    if(YES != [machoParser parse:binary.path classify:NO])
     {
         //bail
         goto bail;

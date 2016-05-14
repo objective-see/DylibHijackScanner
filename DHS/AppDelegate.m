@@ -82,6 +82,12 @@
     //init table
     [self initTable];
     
+    //register for hotkey presses
+    [self registerKeypressHandler];
+    
+    //init mouse-over areas
+    [self initTrackingAreas];
+    
     //init index of 'Vulnerable Applications' header row
     vulnerableAppHeaderIndex = 4;
     
@@ -139,6 +145,37 @@
     
 //bail
 bail:
+    
+    return;
+}
+
+//init tracking areas for buttons
+// ->provide mouse over effects
+-(void)initTrackingAreas
+{
+    //tracking area for buttons
+    NSTrackingArea* trackingArea = nil;
+    
+    //init tracking area
+    // ->for scan button
+    trackingArea = [[NSTrackingArea alloc] initWithRect:[self.scanButton bounds] options:(NSTrackingInVisibleRect|NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways) owner:self userInfo:@{@"tag":[NSNumber numberWithUnsignedInteger:self.scanButton.tag]}];
+    
+    //add tracking area to scan button
+    [self.scanButton addTrackingArea:trackingArea];
+    
+    //init tracking area
+    // ->for preference button
+    trackingArea = [[NSTrackingArea alloc] initWithRect:[self.showPreferencesButton bounds] options:(NSTrackingInVisibleRect|NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways) owner:self userInfo:@{@"tag":[NSNumber numberWithUnsignedInteger:self.showPreferencesButton.tag]}];
+    
+    //add tracking area to pref button
+    [self.showPreferencesButton addTrackingArea:trackingArea];
+    
+    //init tracking area
+    // ->for logo button
+    trackingArea = [[NSTrackingArea alloc] initWithRect:[self.logoButton bounds] options:(NSTrackingInVisibleRect|NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways) owner:self userInfo:@{@"tag":[NSNumber numberWithUnsignedInteger:self.logoButton.tag]}];
+    
+    //add tracking area to logo button
+    [self.logoButton addTrackingArea:trackingArea];
     
     return;
 }
@@ -371,7 +408,6 @@ bail:
             //add tracking area to 'show' button
             [[tableCell viewWithTag:TABLE_ROW_FINDER_BUTTON] addTrackingArea:trackingArea];
         }
-
     }
     
 //bail
@@ -379,58 +415,6 @@ bail:
     
     return tableCell;
 }
-
-/*
-//table delegate method
-// ->invoke when user clicks row (to select)
-//   if its a content row, allow the selection (and handle text highlighting issues)
--(BOOL)tableView:(NSTableView *)tableView shouldSelectRow:(NSInteger)rowIndex
-{
-    //ret var
-    BOOL shouldSelect = NO;
-    
-    //current row
-    NSTableCellView* currentRow = nil;
-    
-    //previously selected row
-    NSTableCellView* previousRow = nil;
-    
-    //detailed text
-    NSTextField* detailedTextField = nil;
-    
-    //get row that's about to be selected
-    currentRow = [self.resultsTableView viewAtColumn:0 row:rowIndex makeIfNecessary:YES];
-    
-    //if new row is a content row (e.g. its allowed it to be selected)
-    // ->reset detailed text color of previous content row that was just unselected
-    if( (nil != currentRow) &&
-        (YES == [self.tableContents[rowIndex] isKindOfClass:[Binary class]]) )
-    {
-        if(-1 != tableView.selectedRow)
-        {
-            //get previous row
-            previousRow = [self.resultsTableView viewAtColumn:0 row:tableView.selectedRow makeIfNecessary:NO];
-            
-            //get detailed text of previous row
-            detailedTextField = [previousRow viewWithTag:TABLE_ROW_SUB_TEXT_TAG];
-                
-            //reset its color to gray
-            detailedTextField.textColor = [NSColor grayColor];
-        }
-            
-        //get detailed text of current row
-        detailedTextField = [currentRow viewWithTag:TABLE_ROW_SUB_TEXT_TAG];
-        
-        //set its color to white
-        detailedTextField.textColor = [NSColor whiteColor];
-        
-        //allow it to be selected
-        shouldSelect = YES;
-    }
-    
-    return shouldSelect;
-}
-*/
 
 //table delegate method
 // ->determine if a table row is a group ('header') row
@@ -475,20 +459,31 @@ bail:
 }
 
 
-//automatically invoked when user clicks the 'reveal in finder' icon
+//automatically invoked when user clicks the 'show in finder' icon
 // ->open Finder to show binary (app)
 -(IBAction)showInFinder:(id)sender
 {
-    //index of selected ro
+    //index of selected row
     NSInteger selectedRow = 0;
+    
+    //file open error alert
+    NSAlert* errorAlert = nil;
     
     //grab selected row
     selectedRow = [self.resultsTableView rowForView:sender];
     
-    //open Finder
-    // ->will reveal binary
-    [[NSWorkspace sharedWorkspace] selectFile:[self.tableContents[selectedRow] path] inFileViewerRootedAtPath:nil];
+    //open item in Finder
+    // ->error alert shown if file open fails
+    if(YES != [[NSWorkspace sharedWorkspace] selectFile:[self.tableContents[selectedRow] path] inFileViewerRootedAtPath:@""])
+    {
+        //alloc/init alert
+                errorAlert = [NSAlert alertWithMessageText:[NSString stringWithFormat:@"ERROR:\nfailed to open %@", [self.tableContents[selectedRow] path]] defaultButton:@"OK" alternateButton:nil otherButton:nil informativeTextWithFormat:@"errno value: %d", errno];
+        
+        //show it
+        [errorAlert runModal];
+    }
     
+
     return;
 }
 
@@ -869,6 +864,120 @@ bail:
 //set or unset button's highlight
 -(void)buttonAppearance:(NSEvent*)theEvent shouldReset:(BOOL)shouldReset
 {
+    //tag
+    NSUInteger tag = 0;
+    
+    //image name
+    NSString* imageName =  nil;
+    
+    //button
+    NSButton* button = nil;
+    
+    //extract tag
+    tag = [((NSDictionary*)theEvent.userData)[@"tag"] unsignedIntegerValue];
+    
+    //handle tag table buttons
+    if(0 == tag)
+    {
+        //set
+        [self buttonAppearanceForTable:theEvent shouldReset:shouldReset];
+        
+        //bail
+        goto bail;
+    }
+    
+    //restore button back to default (visual) state
+    if(YES == shouldReset)
+    {
+        //set original scan image
+        if(SCAN_BUTTON_TAG == tag)
+        {
+            //scan running?
+            if(YES == [self.scanButtonLabel.stringValue isEqualToString:@"Stop Scan"])
+            {
+                //set
+                imageName = @"stopScan";
+                
+            }
+            //scan not running
+            else
+            {
+                //set
+                imageName = @"startScan";
+            }
+            
+        }
+        //set original preferences image
+        else if(PREF_BUTTON_TAG == tag)
+        {
+            //set
+            imageName = @"settings";
+        }
+        //set original logo image
+        else if(LOGO_BUTTON_TAG == tag)
+        {
+            //set
+            imageName = @"logoApple";
+        }
+    }
+    //highlight button
+    else
+    {
+        //set original scan image
+        if(SCAN_BUTTON_TAG == tag)
+        {
+            //scan running
+            if(YES == [self.scanButtonLabel.stringValue isEqualToString:@"Stop Scan"])
+            {
+                //set
+                imageName = @"stopScanOver";
+                
+            }
+            //scan not running
+            else
+            {
+                //set
+                imageName = @"startScanOver";
+            }
+            
+        }
+        //set mouse over preferences image
+        else if(PREF_BUTTON_TAG == tag)
+        {
+            //set
+            imageName = @"settingsOver";
+        }
+        //set mouse over logo image
+        else if(LOGO_BUTTON_TAG == tag)
+        {
+            //set
+            imageName = @"logoAppleOver";
+        }
+    }
+    
+    //set image
+    
+    //grab button
+    button = [[[self window] contentView] viewWithTag:tag];
+    
+    if(YES == [button isEnabled])
+    {
+        //set
+        [button setImage:[NSImage imageNamed:imageName]];
+    }
+    
+//bail
+bail:
+    
+    return;
+}
+
+
+
+
+//set or unset button's highlight in a table
+-(void)buttonAppearanceForTable:(NSEvent*)theEvent shouldReset:(BOOL)shouldReset
+{
     //mouse point
     NSPoint mousePoint = {0};
     
@@ -898,13 +1007,13 @@ bail:
     if(YES == shouldReset)
     {
         //set image
-        [[currentRow viewWithTag:TABLE_ROW_FINDER_BUTTON] setImage:[NSImage imageNamed:@"reveal"]];
+        [[currentRow viewWithTag:TABLE_ROW_FINDER_BUTTON] setImage:[NSImage imageNamed:@"show"]];
     }
     //highlight button
     else
     {
         //set image
-        [[currentRow viewWithTag:TABLE_ROW_FINDER_BUTTON] setImage:[NSImage imageNamed:@"revealOver"]];
+        [[currentRow viewWithTag:TABLE_ROW_FINDER_BUTTON] setImage:[NSImage imageNamed:@"showOver"]];
     }
 
 //bail
@@ -1053,6 +1162,89 @@ bail:
 
     return;
 }
+
+//register handler for hot keys
+-(void)registerKeypressHandler
+{
+    //handler
+    NSEvent* (^keypressHandler)(NSEvent *);
+    
+    //handler logic
+    keypressHandler = ^NSEvent * (NSEvent * theEvent){
+        
+        return [self handleKeypress:theEvent];
+        
+    };
+    
+    //register for key-down events
+    [NSEvent addLocalMonitorForEventsMatchingMask:NSKeyDownMask handler:keypressHandler];
+    
+    return;
+}
+
+//invoked for any (but only) key-down events
+-(NSEvent*)handleKeypress:(NSEvent*)event
+{
+    //flag indicating event was handled
+    BOOL wasHandled = NO;
+    
+    //only care about 'cmd' + something
+    if(NSCommandKeyMask != (event.modifierFlags & NSCommandKeyMask))
+    {
+        //bail
+        goto bail;
+    }
+    
+    //handle key-code
+    // close window (cmd+w)
+    switch ([event keyCode])
+    {
+        //'w' (close window)
+        // ->on main window; same as 'cmd+q' since app will exit with last window
+        case KEYCODE_W:
+            
+            //close window
+            [[[NSApplication sharedApplication] keyWindow] close];
+                
+            //set flag
+            wasHandled = YES;
+                
+            //make un-modal
+            [[NSApplication sharedApplication] stopModal];
+            
+            break;
+            
+        //'q' (close window)
+        // ->exit application
+        case KEYCODE_Q:
+            
+            //quit
+            [NSApp terminate:self];
+            
+            break;
+        
+        //default
+        // ->do nothing
+        default:
+            break;
+            
+    }//switch on event
+    
+//bail
+bail:
+    
+    //nil out event if it was handled
+    if(YES == wasHandled)
+    {
+        //unset
+        event = nil;
+    }
+    
+    return event;
+}
+
+
+
 #pragma mark Menu Handler(s) #pragma mark -
 
 //menu handler
@@ -1085,5 +1277,6 @@ bail:
     
     return;
 }
+
 
 @end

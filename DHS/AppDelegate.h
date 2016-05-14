@@ -35,6 +35,9 @@
 //main table view
 @property (weak) IBOutlet NSTableView *resultsTableView;
 
+@property (weak) IBOutlet NSButton *showPreferencesButton;
+
+@property (weak) IBOutlet NSButton *logoButton;
 
 @property (weak) IBOutlet NSButton *scanButton;
 @property (weak) IBOutlet NSTextField *scanButtonLabel;

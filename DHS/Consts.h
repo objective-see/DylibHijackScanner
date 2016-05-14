@@ -68,7 +68,6 @@
 // ->vulnerable apps
 #define TABLE_HEADER_VULNERABLE @"Vulnerable Applications"
 
-
 //id (tag) for total's msg
 #define TABLE_HEADER_TOTAL_TAG 101
 
@@ -102,5 +101,20 @@
 
 //output file
 #define OUTPUT_FILE @"dhsFindings.txt"
+
+//hotkey 'w'
+#define KEYCODE_W 0xD
+
+//hotkey 'q'
+#define KEYCODE_Q 0xC
+
+//scan button
+#define SCAN_BUTTON_TAG 1000
+
+//pref button
+#define PREF_BUTTON_TAG 1001
+
+//logo button
+#define LOGO_BUTTON_TAG 1002
 
 #endif

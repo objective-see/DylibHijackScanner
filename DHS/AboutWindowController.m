@@ -1,6 +1,6 @@
 //
 //  PrefsWindowController.m
-//  KnockKnock
+//  DHS
 //
 //  Created by Patrick Wardle on 2/6/15.
 //  Copyright (c) 2015 Objective-See, LLC. All rights reserved.
@@ -42,8 +42,8 @@
 }
 
 //automatically invoked when user clicks 'more info'
-// ->load knockknock's html page
-- (IBAction)moreInfo:(id)sender
+// ->load product's html page in the default browser
+-(IBAction)moreInfo:(id)sender
 {
     //open URL
     // ->invokes user's default browser
