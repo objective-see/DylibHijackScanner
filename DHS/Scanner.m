@@ -589,6 +589,15 @@ bail:
         // ->just need first to check
         if(YES == [weakDylib hasPrefix:RUN_SEARCH_PATH])
         {
+            //make sure app has list of run paths
+            // ->'GPG Keychain' has "@rpath/Libmacgpg.framework...", but no run path search paths
+            //    could look at dyld src code and see how this is handled, to see if this is vulnerable
+            if(0 == [binary.parserInstance.binaryInfo[KEY_LC_RPATHS] count])
+            {
+                //skip
+                continue;
+            }
+            
             //resolve
             absoluteDylib = [[binary.parserInstance.binaryInfo[KEY_LC_RPATHS] firstObject] stringByAppendingPathComponent:[weakDylib substringFromIndex:[RUN_SEARCH_PATH length]]];
         }
@@ -598,8 +607,6 @@ bail:
             //use as is
             absoluteDylib = weakDylib;
         }
-        
-    
         
         //check if doesn't exists
         if(YES != [[NSFileManager defaultManager] fileExistsAtPath:absoluteDylib])
@@ -620,7 +627,7 @@ bail:
             binary.issueItem = absoluteDylib;
             
             //bail
-            // ->don't need to scan for more instances, since this binary is hijacked!
+            // ->don't need to scan for more instances, since this binary is vulnerable!
             break;
         }
     }
