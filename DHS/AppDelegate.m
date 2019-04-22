@@ -16,6 +16,7 @@
 @implementation AppDelegate
 
 @synthesize window;
+@synthesize friends;
 @synthesize scanButton;
 @synthesize initialized;
 @synthesize scannerThread;
@@ -63,11 +64,48 @@
     //center window
     [[self window] center];
     
-    //make it key window
-    [self.window makeKeyAndOrderFront:self];
+    //first time run?
+    // show thanks to friends window!
+    // note: on close, invokes method to show main window
+    if(YES != [[NSUserDefaults standardUserDefaults] boolForKey:NOT_FIRST_TIME])
+    {
+        //set key
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:NOT_FIRST_TIME];
+        
+        //front
+        [self.friends makeKeyAndOrderFront:self];
+        
+        //front
+        [NSApp activateIgnoringOtherApps:YES];
+        
+        //make first responder
+        // calling this without a timeout sometimes fails :/
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (100 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
+            
+            //and make it first responder
+            [self.friends makeFirstResponder:[self.friends.contentView viewWithTag:1]];
+            
+        });
+        
+        //close after 3 seconds
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+            
+            //close
+            [self hideFriends:nil];
+            
+        });
+    }
     
-    //make window front
-    [NSApp activateIgnoringOtherApps:YES];
+    //make main window active/front
+    else
+    {
+        //make it key window
+        [self.window makeKeyAndOrderFront:self];
+        
+        //make window front
+        [NSApp activateIgnoringOtherApps:YES];
+        
+    }
     
     //check that OS is supported
     if(YES != isSupportedOS())
@@ -106,7 +144,22 @@
     [self.scanButtonLabel setStringValue:START_SCAN];
     
     //set version info
-    [self.versionString setStringValue:[NSString stringWithFormat:@"version %@", getAppVersion()]];
+    self.versionString.stringValue = [NSString stringWithFormat:@"version %@", getAppVersion()];
+    
+    //dark mode
+    // set version to light
+    if(YES == isDarkMode())
+    {
+        //set overlay's view color to gray
+        self.versionString.textColor = NSColor.lightGrayColor;
+    }
+    //light mode
+    // set overlay to gray
+    else
+    {
+        //set to gray
+        self.versionString.textColor = NSColor.grayColor;
+    }
     
     //set delegate
     // ->ensures our 'windowWillClose' method, which has logic to fully exit app
@@ -148,6 +201,7 @@ bail:
     
     return;
 }
+
 
 //init tracking areas for buttons
 // ->provide mouse over effects
@@ -440,24 +494,11 @@ bail:
 
 
 //table delegate method
-// ->return height (note group rows are smaller)
+// want big rows, so return that here
 - (CGFloat)tableView:(NSTableView *)tableView heightOfRow:(NSInteger)row
 {
-    //ret var
-    CGFloat rowHeight = 0;
-    
-    //default to default height
-    rowHeight = [tableView rowHeight];
-    
-    //group rows are shorter (thinner)
-    if(YES == [self tableView:tableView isGroupRow:row])
-    {
-        //set height
-        rowHeight = 50;
-    }
-    return rowHeight;
+    return 66.0f;
 }
-
 
 //automatically invoked when user clicks the 'show in finder' icon
 // ->open Finder to show binary (app)
@@ -1279,4 +1320,21 @@ bail:
 }
 
 
+//hide friends view
+// also shows/kicks off main window
+- (IBAction)hideFriends:(id)sender
+{
+    //once
+    static dispatch_once_t onceToken;
+    
+    //close and launch main window
+    dispatch_once (&onceToken, ^{
+        
+        //close
+        [self.friends close];
+        
+    });
+    
+    return;
+}
 @end

@@ -9,8 +9,9 @@
 #import "Consts.h"
 #import "Utilities.h"
 
-#import <Foundation/Foundation.h>
 #import <Security/Security.h>
+#import <Foundation/Foundation.h>
+#import <Collaboration/Collaboration.h>
 
 //check if OS is supported
 BOOL isSupportedOS()
@@ -97,6 +98,12 @@ NSDictionary* signingInfo(NSString* path)
     //code
     SecStaticCodeRef staticCode = NULL;
     
+    //"anchor apple"
+    static SecRequirementRef isApple = nil;
+    
+    //token
+    static dispatch_once_t onceToken = 0;
+    
     //status
     OSStatus status = !STATUS_SUCCESS;
     
@@ -118,38 +125,44 @@ NSDictionary* signingInfo(NSString* path)
     //init signing status
     signingStatus = [NSMutableDictionary dictionary];
     
+    //only once
+    // init requirements
+    dispatch_once(&onceToken, ^{
+        
+        //init apple signing requirement
+        SecRequirementCreateWithString(CFSTR("anchor apple"), kSecCSDefaultFlags, &isApple);
+        
+    });
+    
     //create static code
     status = SecStaticCodeCreateWithPath((__bridge CFURLRef)([NSURL fileURLWithPath:path]), kSecCSDefaultFlags, &staticCode);
-    
-    //sanity check
     if(STATUS_SUCCESS != status)
     {
-        //err msg
-        //NSLog(@"OBJECTIVE-SEE ERROR: SecStaticCodeCreateWithPath() failed on %@ with %d", path, status);
-        
         //bail
         goto bail;
     }
     
     //check signature
-    status = SecStaticCodeCheckValidityWithErrors(staticCode, kSecCSDoNotValidateResources, NULL, NULL);
+    status = SecStaticCodeCheckValidity(staticCode, kSecCSDoNotValidateResources, NULL);
     
     //save signature status
     signingStatus[KEY_SIGNATURE_STATUS] = [NSNumber numberWithInt:status];
     
     //if file is signed
-    // ->grab signing authorities
+    // check if signed by apple and grab signing authorities
     if(STATUS_SUCCESS == status)
     {
+        //check if signed by apple
+        if(STATUS_SUCCESS == SecStaticCodeCheckValidity(staticCode, kSecCSDefaultFlags, isApple))
+        {
+            //signed by apple
+            signingStatus[KEY_IS_APPLE] = [NSNumber numberWithInt:YES];
+        }
+        
         //grab signing authorities
         status = SecCodeCopySigningInformation(staticCode, kSecCSSigningInformation, &signingInformation);
-        
-        //sanity check
         if(STATUS_SUCCESS != status)
         {
-            //err msg
-            //NSLog(@"OBJECTIVE-SEE ERROR: SecCodeCopySigningInformation() failed on %@ with %d", path, status);
-            
             //bail
             goto bail;
         }
@@ -205,99 +218,10 @@ bail:
     return signingStatus;
 }
 
-//get all loaded binaries (apps/exes/modules)
-NSMutableArray* loadedBinaries()
-{
-    //loaded binaries
-    NSMutableArray* loadedBinaries;
-    
-    //alloc/init
-    loadedBinaries = [NSMutableArray array];
-    
-    NSTask *task = [NSTask new];
-    [task setLaunchPath:LSOF];
-    //[task setLaunchPath:@"/bin/ls"];
-    [task setArguments:@[@"/"]];
-    
-    NSPipe *outPipe = [NSPipe pipe];
-    [task setStandardOutput:outPipe];
-    //[task setStandardError:outPipe];
-    
-    NSFileHandle * readHandle = [outPipe fileHandleForReading];
-    
-    //dbg msg
-    //NSLog(@"exec'ing lsof");
-    
-    [task launch];
-    
-    //2MB
-    NSMutableData *data = [NSMutableData dataWithCapacity:2*1000000];
-    
-    while ([task isRunning])
-    {
-        
-        [data appendData:[readHandle readDataToEndOfFile]];
-    
-    }
-    [data appendData:[readHandle readDataToEndOfFile]];
-    
-    //[task waitUntilExit];
-    
-    //dbg msg
-    //NSLog(@"DONE exec'ing lsof");
-    
-
-    //NSFileHandle * read = [outPipe fileHandleForReading];
-    //NSData * dataRead = [read readDataToEndOfFile];
-    NSString * stringRead = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    //NSLog(@"output: %@", stringRead);
-    
-    NSArray *lines = [stringRead componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
-    
-    //NSLog(@"lines: %@", lines);
-    
-    NSUInteger index = 0;
-    
-    //skip first line
-    for(index = 1; index < lines.count-1; index++)
-    {
-        NSMutableArray *line = [[lines[index] componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] mutableCopy];
-        line = [[line filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"SELF != ''"]] mutableCopy];
-        
-        NSRange r;
-        r.location = 0;
-        r.length = 8;
-        
-        [line removeObjectsInRange:r];
-        
-        NSString* file = [line componentsJoinedByString:@""];
-        
-        if( (YES == [[NSFileManager defaultManager] fileExistsAtPath:file]) &&
-            (YES == isURLExecutable([NSURL fileURLWithPath:file])) )
-           
-        {
-            //NSLog(@"file: %@", file);
-            
-            //add it to array
-            [loadedBinaries addObject:file];
-        }
-        
-        
-    }
-    
-    //remove dups
-    [loadedBinaries setArray:[[NSSet setWithArray:loadedBinaries] allObjects]];
-    
-    return loadedBinaries;
-}
-
 //get an icon for a process
-// ->for apps, this will be app's icon, otherwise just a standard system one
-NSImage* getIconForBinary(NSString* binary)
+// for apps, this will be app's icon, otherwise just a standard system one
+NSImage* getIconForBinary(NSString* path)
 {
-    //bundle
-    NSBundle* bundle = nil;
-    
     //icon's file name
     NSString* iconFile = nil;
     
@@ -307,27 +231,43 @@ NSImage* getIconForBinary(NSString* binary)
     //icon's path extension
     NSString* iconExtension = nil;
     
-    //system's document icon
-    NSData* documentIcon = nil;
-    
     //icon
     NSImage* icon = nil;
     
-    //load bundle
-    bundle = findAppBundle(binary);
+    //system's document icon
+    static NSImage* documentIcon = nil;
     
-    //for app's
-    // ->extract their icon
-    if(nil != bundle)
+    //bundle
+    NSBundle* appBundle = nil;
+    
+    //invalid path?
+    // grab a default icon and bail
+    if(YES != [[NSFileManager defaultManager] fileExistsAtPath:path])
+    {
+        //set icon to system 'application' icon
+        icon = [[NSWorkspace sharedWorkspace]
+                iconForFileType: NSFileTypeForHFSTypeCode(kGenericApplicationIcon)];
+        
+        //set size to 64 @2x
+        [icon setSize:NSMakeSize(128, 128)];
+        
+        //bail
+        goto bail;
+    }
+    
+    //first try grab bundle
+    // ->then extact icon from this
+    appBundle = findAppBundle(path);
+    if(nil != appBundle)
     {
         //get file
-        iconFile = bundle.infoDictionary[@"CFBundleIconFile"];
+        iconFile = appBundle.infoDictionary[@"CFBundleIconFile"];
         
         //get path extension
         iconExtension = [iconFile pathExtension];
         
         //if its blank (i.e. not specified)
-        // ->go with 'icns'
+        // go with 'icns'
         if(YES == [iconExtension isEqualTo:@""])
         {
             //set type
@@ -335,37 +275,44 @@ NSImage* getIconForBinary(NSString* binary)
         }
         
         //set full path
-        iconPath = [bundle pathForResource:[iconFile stringByDeletingPathExtension] ofType:iconExtension];
+        iconPath = [appBundle pathForResource:[iconFile stringByDeletingPathExtension] ofType:iconExtension];
         
         //load it
         icon = [[NSImage alloc] initWithContentsOfFile:iconPath];
     }
     
     //process is not an app or couldn't get icon
-    // ->try to get it via shared workspace
-    if( (nil == bundle) ||
-        (nil == icon) )
+    // try to get it via shared workspace
+    if( (nil == appBundle) ||
+       (nil == icon) )
     {
         //extract icon
-        icon = [[NSWorkspace sharedWorkspace] iconForFile:binary];
+        icon = [[NSWorkspace sharedWorkspace] iconForFile:path];
         
         //load system document icon
-        documentIcon = [[[NSWorkspace sharedWorkspace] iconForFileType:
-                         NSFileTypeForHFSTypeCode(kGenericDocumentIcon)] TIFFRepresentation];
+        // static var, so only load once
+        if(nil == documentIcon)
+        {
+            //load
+            documentIcon = [[NSWorkspace sharedWorkspace] iconForFileType:
+                            NSFileTypeForHFSTypeCode(kGenericDocumentIcon)];
+        }
         
         //if 'iconForFile' method doesn't find and icon, it returns the system 'document' icon
-        // ->the system 'applicaiton' icon seems more applicable, so use that here...
-        if(YES == [[icon TIFFRepresentation] isEqual:documentIcon])
+        // the system 'application' icon seems more applicable, so use that here...
+        if(YES == [icon isEqual:documentIcon])
         {
-            //set icon to system 'applicaiton' icon
+            //set icon to system 'application' icon
             icon = [[NSWorkspace sharedWorkspace]
-                         iconForFileType: NSFileTypeForHFSTypeCode(kGenericApplicationIcon)];
+                    iconForFileType: NSFileTypeForHFSTypeCode(kGenericApplicationIcon)];
         }
         
         //'iconForFileType' returns small icons
-        // ->so set size to 64
-        [icon setSize:NSMakeSize(64, 64)];
+        // so set size to 64 @2x
+        [icon setSize:NSMakeSize(128, 128)];
     }
+    
+bail:
     
     return icon;
 }
@@ -421,4 +368,157 @@ NSString* getAppVersion()
 {
     //read and return 'CFBundleVersion' from bundle
     return [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"];
+}
+
+//check if (full) dark mode
+// meaning, Mojave+ and dark mode enabled
+BOOL isDarkMode()
+{
+    //flag
+    BOOL darkMode = NO;
+    
+    //prior to mojave?
+    // bail, since not true dark mode
+    if( (YES != [NSProcessInfo instancesRespondToSelector:@selector(isOperatingSystemAtLeastVersion:)]) ||
+       (YES != [[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:(NSOperatingSystemVersion){10, 14, 0}]) )
+    {
+        //bail
+        goto bail;
+    }
+    
+    //not dark mode?
+    if(YES != [[[NSUserDefaults standardUserDefaults] stringForKey:@"AppleInterfaceStyle"] isEqualToString:@"Dark"])
+    {
+        //bail
+        goto bail;
+    }
+    
+    //ok, mojave dark mode it is!
+    darkMode = YES;
+    
+bail:
+    
+    return darkMode;
+}
+
+//get all user
+// includes name/home directory
+NSMutableDictionary* allUsers()
+{
+    //users
+    NSMutableDictionary* users = nil;
+    
+    //query
+    CSIdentityQueryRef query = nil;
+    
+    //query results
+    CFArrayRef results = NULL;
+    
+    //error
+    CFErrorRef error = NULL;
+    
+    //identiry
+    CBIdentity* identity = NULL;
+    
+    //alloc dictionary
+    users = [NSMutableDictionary dictionary];
+    
+    //init query
+    query = CSIdentityQueryCreate(NULL, kCSIdentityClassUser, CSGetLocalIdentityAuthority());
+    
+    //exec query
+    if(true != CSIdentityQueryExecute(query, 0, &error))
+    {
+        //bail
+        goto bail;
+    }
+    
+    //grab results
+    results = CSIdentityQueryCopyResults(query);
+    
+    //process all results
+    // add user and home directory
+    for (int i = 0; i < CFArrayGetCount(results); ++i)
+    {
+        //grab identity
+        identity = [CBIdentity identityWithCSIdentity:(CSIdentityRef)CFArrayGetValueAtIndex(results, i)];
+        
+        //add user
+        users[identity.UUIDString] = @{USER_NAME:identity.posixName, USER_DIRECTORY:NSHomeDirectoryForUser(identity.posixName)};
+    }
+    
+bail:
+    
+    //release results
+    if(NULL != results)
+    {
+        //release
+        CFRelease(results);
+    }
+    
+    //release query
+    if(NULL != query)
+    {
+        //release
+        CFRelease(query);
+    }
+    
+    return users;
+}
+
+//give a list of paths
+// convert any `~` to all or current user
+NSMutableArray* expandPaths(const __strong NSString* const paths[], int count)
+{
+    //expanded paths
+    NSMutableArray* expandedPaths = nil;
+    
+    //(current) path
+    const NSString* path = nil;
+    
+    //all users
+    NSMutableDictionary* users = nil;
+    
+    //grab all users
+    users = allUsers();
+    
+    //alloc list
+    expandedPaths = [NSMutableArray array];
+    
+    //iterate/expand
+    for(NSInteger i = 0; i < count; i++)
+    {
+        //grab path
+        path = paths[i];
+        
+        //no `~`?
+        // just add and continue
+        if(YES != [path hasPrefix:@"~"])
+        {
+            //add as is
+            [expandedPaths addObject:path];
+            
+            //next
+            continue;
+        }
+        
+        //handle '~' case
+        // root? add each user
+        if(0 == geteuid())
+        {
+            //add each user
+            for(NSString* user in users)
+            {
+                [expandedPaths addObject:[users[user][USER_DIRECTORY] stringByAppendingPathComponent:[path substringFromIndex:1]]];
+            }
+        }
+        //otherwise
+        // just convert to current user
+        else
+        {
+            [expandedPaths addObject:[path stringByExpandingTildeInPath]];
+        }
+    }
+    
+    return expandedPaths;
 }

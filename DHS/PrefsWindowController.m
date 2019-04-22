@@ -6,6 +6,7 @@
 //  Copyright (c) 2015 Objective-See, LLC. All rights reserved.
 //
 #import "Consts.h"
+#import "Utilities.h"
 #import <Quartz/Quartz.h>
 #import "PrefsWindowController.h"
 
@@ -31,8 +32,13 @@
     //super
     [super windowDidLoad];
     
-    //make white
-    [self.window setBackgroundColor: NSColor.whiteColor];
+    //no dark mode?
+    // make window white
+    if(YES != isDarkMode())
+    {
+        //make white
+        self.window.backgroundColor = NSColor.whiteColor;
+    }
     
     //check if 'full scan' button should be selected
     if(YES == self.fullScan)

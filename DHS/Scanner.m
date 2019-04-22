@@ -25,6 +25,10 @@ NSString* const KNOWN_FPS[] = {
     @"/Applications/SmartConverter.app/Contents/Frameworks/Sparkle.framework/Versions/A/Sparkle"
 };
 
+//(privacy) protected directories
+NSString * const PROTECTED_DIRECTORIES[] = {@"~/Library/Application Support/AddressBook", @"~/Library/Calendars", @"~/Pictures", @"~/Library/Mail", @"~/Library/Messages", @"~/Library/Safari", @"~/Library/Cookies", @"~/Library/HomeKit", @"~/Library/IdentityServices", @"~/Library/Metadata/CoreSpotlight", @"~/Library/PersonalizationPortrait", @"~/Library/Suggestions"};
+
+
 @implementation Scanner
 
 @synthesize knownFPs;
@@ -32,10 +36,10 @@ NSString* const KNOWN_FPS[] = {
 @synthesize machoParser;
 @synthesize scannedBinaries;
 @synthesize scan4WeakHijackers;
-
+@synthesize protectedDirectories;
 
 //init
-// ->do any initializations and sets scanner options
+// do any initializations and sets scanner options
 -(id)initWithOptions:(NSDictionary*)options
 {
     //init super
@@ -44,6 +48,10 @@ NSString* const KNOWN_FPS[] = {
     {
         //init set
         knownFPs = [NSMutableSet set];
+        
+        //init set of (privacy) protected directories
+        // these will be skipped, as otherwise we will generate a privacy prompt
+        self.protectedDirectories = expandPaths(PROTECTED_DIRECTORIES, sizeof(PROTECTED_DIRECTORIES)/sizeof(PROTECTED_DIRECTORIES[0]));
         
         //init fps
         // ->add each to set
@@ -113,13 +121,12 @@ NSString* const KNOWN_FPS[] = {
                    }];
     
     //iterate over all files
-    // ->save all executable binaries
-    for(NSURL *fileURL in enumerator)
+    // save all executable binaries
+    for(NSURL* fileURL in enumerator)
     {
         //ensure that memory cleanup happens after each binary
-        // ->helps keep memory usage in check
         @autoreleasepool {
-        
+            
         //check if scanner thread was cancelled
         // ->should exit if so
         if(YES == [[NSThread currentThread] isCancelled])
@@ -131,8 +138,15 @@ NSString* const KNOWN_FPS[] = {
             [NSThread exit];
         }
         
+        //skip protected files/directories
+        if(YES == [self isProtected:fileURL.URLByResolvingSymlinksInPath.path])
+        {
+            //skip
+            continue;
+        }
+        
         //skip non-existent files and directories
-        if( (YES != [[NSFileManager defaultManager] fileExistsAtPath:fileURL.path isDirectory:&isDirectory]) ||
+        if( (YES != [[NSFileManager defaultManager] fileExistsAtPath:fileURL.URLByResolvingSymlinksInPath.path isDirectory:&isDirectory]) ||
             (YES == isDirectory) )
         {
             //skip
@@ -141,17 +155,17 @@ NSString* const KNOWN_FPS[] = {
         
         //skip non-executable files
         // ->that is, non i386/x86_64
-        if(YES != isURLExecutable(fileURL))
+        if(YES != isURLExecutable(fileURL.URLByResolvingSymlinksInPath))
         {
             //skip
             continue;
         }
         
         //save it
-        [self.scannedBinaries addObject:fileURL.path];
+        [self.scannedBinaries addObject:fileURL.URLByResolvingSymlinksInPath.path];
         
         //scan it
-        [self scanBinary:[[Binary alloc] initWithPath:fileURL.path]];
+        [self scanBinary:[[Binary alloc] initWithPath:fileURL.URLByResolvingSymlinksInPath.path]];
             
         }//autorelease
     }
@@ -244,7 +258,7 @@ NSString* const KNOWN_FPS[] = {
         [self.scannedBinaries addObject:processName];
         
         //scan it
-        [self scanBinary:[[Binary alloc] initWithPath:processName]];
+        [self scanBinary:[[Binary alloc] initWithPath:processName.stringByResolvingSymlinksInPath]];
     }
     
 //bail
@@ -255,12 +269,40 @@ bail:
     {
         //free
         free(pids);
+        
+        //unset
+        pids = NULL;
     }
     
     //dbg msg
     //NSLog(@"OBJECTIVE-SEE INFO: done scanning running processes/dylibs");
     
     return;
+}
+
+//check if file is protected
+// on mojave+, need to avoid prompts
+-(BOOL)isProtected:(NSString*) path
+{
+    //flag
+    BOOL protected = NO;
+    
+    //skip any files in (privacy) protected directories
+    // as otherwise we will generate a privacy prompt (on Mojave)
+    for(NSString* directory in protectedDirectories)
+    {
+        //check
+        if(YES == [path hasPrefix:directory])
+        {
+            //set flag
+            protected = YES;
+            
+            //done
+            break;
+        }
+    }
+    
+    return protected;
 }
 
 //parse a binary
@@ -521,6 +563,14 @@ bail:
         
         //dbg msg
         //NSLog(@"OBJECTIVE-SEE INFO: found %lu instance of %@ in run-path search dir", (unsigned long)dylibCount, importedDylib);
+        
+        //always ignore apple signed dylibs
+        // note: only set if validly signed, and signed by apple
+        if(YES == [signingInfo(initialResolvedPath)[KEY_IS_APPLE] boolValue])
+        {
+            //skip
+            continue;
+        }
         
         //get binary's signing info
         binarySigningInfo = signingInfo(binary.path);
@@ -807,8 +857,16 @@ bail:
     //get signing info for binary
     binarySigningInfo = signingInfo(binary.path);
     
-    //get signin info for weak import
+    //get signing info for weak import
     importSigningInfo = signingInfo(weakImport);
+    
+    //always ignore apple signed dylibs
+    // note: only set if validly signed, and signed by apple
+    if(YES == [importSigningInfo[KEY_IS_APPLE] boolValue])
+    {
+        //bail
+        goto bail;
+    }
     
     //check if parent is signed
     if( (nil != binarySigningInfo) &&
@@ -823,6 +881,8 @@ bail:
             
         }
     }
+    
+bail:
     
     return isSuspicious;
 }

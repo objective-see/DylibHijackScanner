@@ -10,7 +10,7 @@
 #define DHS_Utilities_h
 
 //check if OS is supported
-BOOL isSupportedOS();
+BOOL isSupportedOS(void);
 
 //check if a file is an executable
 BOOL isURLExecutable(NSURL* appURL);
@@ -18,8 +18,6 @@ BOOL isURLExecutable(NSURL* appURL);
 //get the signing info of a file
 NSDictionary* signingInfo(NSString* path);
 
-//get all loaded binaries (apps/exes/modules)
-NSMutableArray* loadedBinaries();
 
 /* METHODS */
 
@@ -33,6 +31,18 @@ NSBundle* findAppBundle(NSString* binaryPath);
 
 //get app's version
 // ->extracted from Info.plist
-NSString* getAppVersion();
+NSString* getAppVersion(void);
+
+//check if (full) dark mode
+// meaning, Mojave+ and dark mode enabled
+BOOL isDarkMode(void);
+
+//get all user
+// includes name/home directory
+NSMutableDictionary* allUsers(void);
+
+//give a list of paths
+// convert any `~` to all or current user
+NSMutableArray* expandPaths(const __strong NSString* const paths[], int count);
 
 #endif

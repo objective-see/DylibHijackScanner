@@ -29,7 +29,10 @@
 
 //known false positives
 // ->for now, by path
-@property NSMutableSet* knownFPs;
+@property(nonatomic, retain) NSMutableSet* knownFPs;
+
+//(privacy) protected directories
+@property(nonatomic, retain)NSArray* protectedDirectories;
 
 /* METHODS */
 

@@ -31,6 +31,7 @@
 //version string
 @property (weak) IBOutlet NSTextField *versionString;
 
+@property (weak) IBOutlet NSWindow *friends;
 
 //main table view
 @property (weak) IBOutlet NSTableView *resultsTableView;
