@@ -332,7 +332,6 @@ bail:
     //save instance of parser into binary object
     binary.parserInstance = machoParser;
 
-//bail
 bail:
     
     return wasParsed;
@@ -344,6 +343,9 @@ bail:
 {
     //dbg msg
     //NSLog(@"scanning %@", binary.path);
+    
+    //signing dictionary for binary
+    NSDictionary* binarySigningInfo = nil;
     
     //first gotta parse it
     if(YES != [self parseBinary:binary])
@@ -357,6 +359,16 @@ bail:
     
     //skip dylibs!
     if(MH_EXECUTE != [binary getType])
+    {
+        //skip
+        goto bail;
+    }
+    
+    //generate signing information
+    binarySigningInfo = signingInfo(binary.path);
+    
+    //skip binaries with "libary validation)
+    if(YES == [binarySigningInfo[KEY_LIBRARY_VALIDATION] boolValue])
     {
         //skip
         goto bail;
@@ -405,22 +417,20 @@ bail:
         }
     }
     
-//bail
 bail:
     
     return;
-    
 }
 
 //check if a binary is hijacked
 -(void)scan4Hijack:(Binary*)binary
 {
     //first check for rpath hijack
-    // ->is more conclusive (less false positives)
+    // is more conclusive (less false positives)
     [self scan4HijackRPath:binary];
     
     //if not rpath hijacked
-    // ->check for weak hijack
+    // check for weak hijack
     if( (YES == self.scan4WeakHijackers) &&
         (YES != binary.isHijacked) )
     {
@@ -576,7 +586,7 @@ bail:
         binarySigningInfo = signingInfo(binary.path);
         
         //if binary is signed
-        // ->a 'hijacker' dylib with the same signature is fine
+        // note: a 'hijacker' dylib with the same signature is fine
         if( (nil != binarySigningInfo) &&
             (errSecCSUnsigned != [binarySigningInfo[KEY_SIGNATURE_STATUS] integerValue]) )
         {
@@ -598,11 +608,11 @@ bail:
         binary.issueType = ISSUE_TYPE_RPATH;
         
         //set issue item
-        // ->the first dylib (of 2+) found in the @rpath directories
+        // the first dylib (of 2+) found in the @rpath directories
         binary.issueItem = initialResolvedPath;
 
         //bail
-        // ->don't need to scan for more instances, since this binary is hijacked!
+        // don't need to scan for more instances, since this binary is hijacked!
         break;
     }
     
@@ -878,7 +888,6 @@ bail:
         {
             //shady!
             isSuspicious = YES;
-            
         }
     }
     
@@ -886,7 +895,6 @@ bail:
     
     return isSuspicious;
 }
-
 
 
 //check if the digital signatures of a binary and an dylib match

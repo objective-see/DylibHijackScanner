@@ -12,18 +12,12 @@
 @implementation Binary
 
 @synthesize path;
-
-
-@synthesize parserInstance;
-
 @synthesize lcRPATHS;
-
-
 @synthesize issueType;
 @synthesize issueItem;
 @synthesize isHijacked;
 @synthesize isVulnerable;
-
+@synthesize parserInstance;
 
 //init with a path
 -(id)initWithPath:(NSString*)binaryPath

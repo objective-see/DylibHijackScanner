@@ -40,6 +40,7 @@
 //keys for signing stuff
 #define KEY_IS_APPLE @"isApple"
 #define KEY_SIGNATURE_STATUS @"signatureStatus"
+#define KEY_LIBRARY_VALIDATION @"libraryValidation"
 #define KEY_SIGNING_AUTHORITIES @"signingAuthorities"
 
 //executable path
@@ -50,6 +51,9 @@
 
 //rpath
 #define RUN_SEARCH_PATH @"@rpath"
+
+//library validation flags
+#define FLAGS_LIBRARY_VALIDATION 0x2000
 
 //type
 // ->rpath

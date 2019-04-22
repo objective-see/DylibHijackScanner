@@ -149,9 +149,17 @@ NSDictionary* signingInfo(NSString* path)
     signingStatus[KEY_SIGNATURE_STATUS] = [NSNumber numberWithInt:status];
     
     //if file is signed
-    // check if signed by apple and grab signing authorities
+    // check if signed by apple, library validation, and grab signing authorities
     if(STATUS_SUCCESS == status)
     {
+        //grab signing information
+        status = SecCodeCopySigningInformation(staticCode, kSecCSSigningInformation, &signingInformation);
+        if(STATUS_SUCCESS != status)
+        {
+            //bail
+            goto bail;
+        }
+        
         //check if signed by apple
         if(STATUS_SUCCESS == SecStaticCodeCheckValidity(staticCode, kSecCSDefaultFlags, isApple))
         {
@@ -159,12 +167,11 @@ NSDictionary* signingInfo(NSString* path)
             signingStatus[KEY_IS_APPLE] = [NSNumber numberWithInt:YES];
         }
         
-        //grab signing authorities
-        status = SecCodeCopySigningInformation(staticCode, kSecCSSigningInformation, &signingInformation);
-        if(STATUS_SUCCESS != status)
+        //library validation enabled?
+        if(FLAGS_LIBRARY_VALIDATION == ([[(__bridge NSDictionary*)signingInformation objectForKey:(__bridge NSString*)kSecCodeInfoFlags] unsignedIntegerValue] & FLAGS_LIBRARY_VALIDATION))
         {
-            //bail
-            goto bail;
+            //library validation
+            signingStatus[KEY_LIBRARY_VALIDATION] = [NSNumber numberWithInt:YES];
         }
     }
     
@@ -198,7 +205,6 @@ NSDictionary* signingInfo(NSString* path)
         CFRelease(commonName);
     }
     
-//bail
 bail:
     
     //free signing info
