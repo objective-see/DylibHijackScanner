@@ -19,16 +19,16 @@
 #define STOP_SCAN @"Stop Scan"
 
 //status msg
-#define SCAN_MSG_PARTIAL @"scanning running processes"
+#define SCAN_MSG_PARTIAL @"Scanning running processes"
 
 //status msg
-#define SCAN_MSG_FULL @"scanning entire system"
+#define SCAN_MSG_FULL @"Scanning entire system"
 
 //status msg
-#define SCAN_MSG_STOPPED @"scan stopped"
+#define SCAN_MSG_STOPPED @"Scan stopped"
 
 //status msg
-#define SCAN_MSG_COMPLETE @"scan complete!"
+#define SCAN_MSG_COMPLETE @"Scan complete!"
 
 //success
 #define STATUS_SUCCESS 0
@@ -40,6 +40,8 @@
 //keys for signing stuff
 #define KEY_IS_APPLE @"isApple"
 #define KEY_SIGNATURE_STATUS @"signatureStatus"
+#define KEY_HARDENED_RUNTIME @"hardenedRuntime"
+#define KEY_SIGNING_ENTITLEMENTS @"entitlements"
 #define KEY_LIBRARY_VALIDATION @"libraryValidation"
 #define KEY_SIGNING_AUTHORITIES @"signingAuthorities"
 
@@ -51,6 +53,9 @@
 
 //rpath
 #define RUN_SEARCH_PATH @"@rpath"
+
+//hardened runtime flags
+#define FLAG_HARDENED_RUNTIME 0x10000
 
 //library validation flags
 #define FLAGS_LIBRARY_VALIDATION 0x2000
@@ -133,7 +138,7 @@
 #define PATREON_URL @"https://www.patreon.com/objective_see"
 
 //product url
-#define PRODUCT_URL @"https://objective-see.com/products/dhs.html"
+#define PRODUCT_URL @"https://objective-see.org/products/dhs.html"
 
 //user name
 #define USER_NAME @"userName"

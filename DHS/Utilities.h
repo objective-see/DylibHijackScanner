@@ -9,8 +9,8 @@
 #ifndef DHS_Utilities_h
 #define DHS_Utilities_h
 
-//check if OS is supported
-BOOL isSupportedOS(void);
+//check if file is in cache
+BOOL isInCache(NSString* path);
 
 //check if a file is an executable
 BOOL isURLExecutable(NSURL* appURL);
@@ -18,8 +18,8 @@ BOOL isURLExecutable(NSURL* appURL);
 //get the signing info of a file
 NSDictionary* signingInfo(NSString* path);
 
-
-/* METHODS */
+//check if directory is SIP'd
+BOOL isSIPDirectory(NSString* path);
 
 //get an icon for a process
 // ->for apps, this will be app's icon, otherwise just a standard system one

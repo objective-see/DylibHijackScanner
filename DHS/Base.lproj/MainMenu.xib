@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="21507" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14490.70"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="21507"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -36,12 +36,13 @@
                     </menu>
                 </menuItem>
             </items>
+            <point key="canvasLocation" x="4" y="154"/>
         </menu>
         <window title="DHS" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" animationBehavior="default" id="371">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="0.0" y="291" width="1000" height="586"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="3440" height="1415"/>
             <value key="minSize" type="size" width="1000" height="586"/>
             <value key="maxSize" type="size" width="2000" height="1000"/>
             <view key="contentView" id="372">
@@ -56,14 +57,13 @@
                             <subviews>
                                 <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnSelection="YES" multipleSelection="NO" emptySelection="NO" autosaveColumns="NO" rowHeight="66" rowSizeStyle="automatic" viewBased="YES" id="537">
                                     <rect key="frame" x="0.0" y="0.0" width="1000" height="446"/>
-                                    <autoresizingMask key="autoresizingMask"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <size key="intercellSpacing" width="3" height="2"/>
                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                     <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                     <tableColumns>
-                                        <tableColumn identifier="MainCell" editable="NO" width="997" minWidth="40" maxWidth="2000" id="541">
+                                        <tableColumn identifier="MainCell" editable="NO" width="988" minWidth="40" maxWidth="2000" id="541">
                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
-                                                <font key="font" metaFont="smallSystem"/>
                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" white="0.33333298560000002" alpha="1" colorSpace="calibratedWhite"/>
                                             </tableHeaderCell>
@@ -87,7 +87,7 @@
                                                             <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSColorPanel" id="1043"/>
                                                         </imageView>
                                                         <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="1033">
-                                                            <rect key="frame" x="60" y="18" width="468" height="31"/>
+                                                            <rect key="frame" x="60" y="21" width="468" height="25"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="width" constant="464" id="sUr-jg-4F5"/>
                                                             </constraints>
@@ -98,11 +98,11 @@
                                                             </textFieldCell>
                                                         </textField>
                                                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" tag="101" translatesAutoresizingMaskIntoConstraints="NO" id="1091">
-                                                            <rect key="frame" x="844" y="18" width="150" height="31"/>
+                                                            <rect key="frame" x="844" y="21" width="150" height="25"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="width" constant="146" id="09A-wo-rEy"/>
                                                             </constraints>
-                                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="total: 0" id="1092">
+                                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Total: 0" id="1092">
                                                                 <font key="font" size="22" name="Menlo-Regular"/>
                                                                 <color key="textColor" white="0.45205439809999998" alpha="0.84999999999999998" colorSpace="calibratedWhite"/>
                                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -127,7 +127,7 @@
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <subviews>
                                                         <imageView translatesAutoresizingMaskIntoConstraints="NO" id="577">
-                                                            <rect key="frame" x="15" y="13" width="40" height="40"/>
+                                                            <rect key="frame" x="15" y="8" width="40" height="51"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="width" constant="40" id="AHl-nj-3fh"/>
                                                                 <constraint firstAttribute="height" constant="40" id="lga-If-1Uo"/>
@@ -143,7 +143,7 @@
                                                             </textFieldCell>
                                                         </textField>
                                                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" tag="2" translatesAutoresizingMaskIntoConstraints="NO" id="BUm-sJ-dtF">
-                                                            <rect key="frame" x="62" y="13" width="900" height="17"/>
+                                                            <rect key="frame" x="62" y="13" width="900" height="13"/>
                                                             <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" allowsUndo="NO" sendsActionOnEndEditing="YES" title="hijack detail" id="mds-5g-doD">
                                                                 <font key="font" size="11" name="Menlo-Regular"/>
                                                                 <color key="textColor" white="0.5" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
@@ -236,7 +236,7 @@
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="dhsText" id="BMc-Y2-jBu"/>
                     </imageView>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="745">
-                        <rect key="frame" x="678" y="13" width="268" height="20"/>
+                        <rect key="frame" x="678" y="10" width="268" height="20"/>
                         <constraints>
                             <constraint firstAttribute="width" constant="264" id="2Ts-i0-oFQ"/>
                             <constraint firstAttribute="height" constant="20" id="KWZ-TF-gBQ"/>
@@ -248,7 +248,7 @@
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="HXX-If-fNU">
-                        <rect key="frame" x="916" y="534" width="83" height="14"/>
+                        <rect key="frame" x="916" y="537" width="83" height="11"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="version 1.0.0" id="NFT-re-jIg">
                             <font key="font" size="10" name="Menlo-Regular"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -295,7 +295,7 @@
                 <constraints>
                     <constraint firstAttribute="bottom" secondItem="uwi-0S-mwG" secondAttribute="bottom" constant="7" id="1eH-Ne-2G9"/>
                     <constraint firstAttribute="trailing" secondItem="9f2-EU-HWi" secondAttribute="trailing" constant="3" id="4AI-Lz-Ayq"/>
-                    <constraint firstAttribute="bottom" secondItem="745" secondAttribute="bottom" constant="13" id="4Kz-Ba-72d"/>
+                    <constraint firstAttribute="bottom" secondItem="745" secondAttribute="bottom" constant="10" id="4Kz-Ba-72d"/>
                     <constraint firstItem="9f2-EU-HWi" firstAttribute="top" secondItem="372" secondAttribute="top" constant="-9" id="4hp-fa-xLW"/>
                     <constraint firstAttribute="trailing" secondItem="HXX-If-fNU" secondAttribute="trailing" constant="3" id="5fT-Uk-FGS"/>
                     <constraint firstAttribute="trailing" secondItem="839" secondAttribute="trailing" constant="5" id="9q3-P9-ayO"/>
@@ -338,7 +338,7 @@
         <window allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="Cda-eD-CJD" userLabel="Friends">
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
             <rect key="contentRect" x="2843" y="305" width="796" height="467"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
+            <rect key="screenRect" x="3440" y="0.0" width="1512" height="944"/>
             <view key="contentView" id="JNZ-gz-c2r">
                 <rect key="frame" x="0.0" y="0.0" width="796" height="467"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -355,53 +355,6 @@
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="03r-yy-2LJ">
-                        <rect key="frame" x="118" y="233" width="126" height="19"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <textFieldCell key="cell" lineBreakMode="clipping" alignment="center" title="Digita Security" id="1aK-6k-esL">
-                            <font key="font" size="13" name="Menlo-Regular"/>
-                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
-                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ILl-Kx-4Yl">
-                        <rect key="frame" x="132" y="257" width="91" height="107"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="FriendsDigita" id="coB-JA-Dw7"/>
-                    </imageView>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ISI-Qz-Ux0">
-                        <rect key="frame" x="458" y="52" width="135" height="19"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <textFieldCell key="cell" lineBreakMode="clipping" alignment="center" title="Airo" id="UB9-pZ-50N">
-                            <font key="font" size="13" name="Menlo-Regular"/>
-                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
-                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="pP2-HP-yPM">
-                        <rect key="frame" x="478" y="75" width="94" height="118"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="FriendsAiro" id="Hcc-nr-Vc9"/>
-                    </imageView>
-                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Zkx-l4-FYb">
-                        <rect key="frame" x="353" y="265" width="91" height="92"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="FriendsSophos" id="KRQ-jK-K43"/>
-                    </imageView>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="et1-gw-DQ4">
-                        <rect key="frame" x="329" y="233" width="138" height="19"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <textFieldCell key="cell" lineBreakMode="clipping" alignment="center" title="Sophos" id="h5L-7x-4pY">
-                            <font key="font" size="13" name="Menlo-Regular"/>
-                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
-                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="749" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Lu3-MA-dwf">
-                        <rect key="frame" x="219" y="73" width="135" height="121"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="FriendsMalwarebytes" id="f3k-kt-pwZ"/>
-                    </imageView>
                     <button verticalHuggingPriority="750" fixedFrame="YES" tag="1" translatesAutoresizingMaskIntoConstraints="NO" id="RgF-Tx-7c4">
                         <rect key="frame" x="691" y="12" width="80" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
@@ -413,41 +366,55 @@
                             <action selector="hideFriends:" target="494" id="vVO-Sg-yzJ"/>
                         </connections>
                     </button>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rQJ-kX-Aez">
-                        <rect key="frame" x="582" y="233" width="102" height="19"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <textFieldCell key="cell" lineBreakMode="clipping" alignment="center" title="CleanMyMac X" id="Hgg-Ep-s5n">
-                            <font key="font" size="13" name="Menlo-Regular"/>
-                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
-                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bFj-oI-55u">
-                        <rect key="frame" x="578" y="255" width="110" height="111"/>
+                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" alphaValue="0.90000000000000002" id="u0N-dd-oql">
+                        <rect key="frame" x="76" y="302" width="149" height="57"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="FriendsMacPaw" id="LFW-LG-zax"/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="FriendsJamf" id="BwO-cR-Aap"/>
                     </imageView>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eOy-mt-YJ0">
-                        <rect key="frame" x="235" y="52" width="102" height="19"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <textFieldCell key="cell" lineBreakMode="clipping" alignment="center" title="Malwarebytes" id="EFH-Me-Ryl">
-                            <font key="font" size="13" name="Menlo-Regular"/>
-                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
+                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" alphaValue="0.69999999999999996" id="e4d-eZ-kHo">
+                        <rect key="frame" x="328" y="302" width="159" height="60"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="FriendsKandji" id="0Ah-rA-bGS"/>
+                    </imageView>
+                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" alphaValue="0.75" id="6sd-mv-n2w">
+                        <rect key="frame" x="39" y="191" width="223" height="81"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="FriendsMacPaw" id="NCi-xn-dKd"/>
+                    </imageView>
+                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" alphaValue="0.66000000000000003" id="Mw8-w9-kf6">
+                        <rect key="frame" x="307" y="199" width="183" height="66"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="FriendsPANW" id="IwF-rf-GYZ"/>
+                    </imageView>
+                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" alphaValue="0.66000000000000003" id="vcf-d1-Ys7">
+                        <rect key="frame" x="565" y="303" width="157" height="57"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="FriendsKolide" id="Wh8-w3-xdU"/>
+                    </imageView>
+                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" alphaValue="0.66000000000000003" id="lbf-n1-sjZ">
+                        <rect key="frame" x="312" y="100" width="173" height="57"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="FriendsSophos" id="Ris-2J-KIk"/>
+                    </imageView>
+                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" alphaValue="0.66000000000000003" id="vqj-dS-6iY">
+                        <rect key="frame" x="556" y="195" width="174" height="77"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="FriendsMosyle" id="G2G-fA-qdY"/>
+                    </imageView>
                 </subviews>
             </view>
             <point key="canvasLocation" x="704" y="-503.5"/>
         </window>
     </objects>
     <resources>
-        <image name="FriendsAiro" width="162" height="163"/>
-        <image name="FriendsDigita" width="450" height="460"/>
-        <image name="FriendsMacPaw" width="2048" height="2048"/>
-        <image name="FriendsMalwarebytes" width="792" height="612"/>
-        <image name="FriendsSophos" width="188" height="190"/>
-        <image name="NSActionTemplate" width="14" height="14"/>
+        <image name="FriendsJamf" width="328" height="114"/>
+        <image name="FriendsKandji" width="1944" height="494"/>
+        <image name="FriendsKolide" width="636" height="216"/>
+        <image name="FriendsMacPaw" width="2034" height="335"/>
+        <image name="FriendsMosyle" width="963" height="265"/>
+        <image name="FriendsPANW" width="1312" height="240"/>
+        <image name="FriendsSophos" width="518" height="137"/>
+        <image name="NSActionTemplate" width="20" height="20"/>
         <image name="NSColorPanel" width="32" height="32"/>
         <image name="dhsText" width="711.5999755859375" height="85.919998168945312"/>
         <image name="logoApple" width="194" height="236"/>

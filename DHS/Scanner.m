@@ -344,6 +344,9 @@ bail:
     //dbg msg
     //NSLog(@"scanning %@", binary.path);
     
+    //flag
+    BOOL disabledLibValidation = NO;
+    
     //signing dictionary for binary
     NSDictionary* binarySigningInfo = nil;
     
@@ -367,31 +370,58 @@ bail:
     //generate signing information
     binarySigningInfo = signingInfo(binary.path);
     
-    //skip binaries with "libary validation)
-    if(YES == [binarySigningInfo[KEY_LIBRARY_VALIDATION] boolValue])
+    //set flag
+    disabledLibValidation = [binarySigningInfo[KEY_SIGNING_ENTITLEMENTS][@"com.apple.security.cs.disable-library-validation"] boolValue];
+    
+    //signed ok?
+    if(STATUS_SUCCESS == [binarySigningInfo[KEY_SIGNATURE_STATUS] unsignedIntValue])
     {
-        //skip
-        goto bail;
+        //skip platform binaries
+        // this are now tacitly protected w/ lib validation
+        if( (YES != disabledLibValidation) &&
+            (YES == [binarySigningInfo[KEY_IS_APPLE] boolValue]) )
+        {
+            //NSLog(@"skipping %@, as its an apple binary", binary.path);
+            
+            //done
+            goto bail;
+        }
+    
+        //skip binaries with hardened runtime
+        if( (YES != disabledLibValidation) &&
+            (YES == [binarySigningInfo[KEY_HARDENED_RUNTIME] boolValue]) )
+        {
+            //skip
+            goto bail;
+        }
+        
+        //skip binaries with "libary validation)
+        if( (YES != disabledLibValidation) &&
+            (YES == [binarySigningInfo[KEY_LIBRARY_VALIDATION] boolValue]) )
+        {
+            //skip
+            goto bail;
+        }
     }
 
     //resolve LC_LOAD_WEAK_DYLIB imports
-    // ->need to do this, since we check to see if they exist
+    // need to do this, since we check to see if they exist
     binary.parserInstance.binaryInfo[KEY_LC_LOAD_WEAK_DYLIBS] = [self resolvePaths:binary paths:binary.parserInstance.binaryInfo[KEY_LC_LOAD_WEAK_DYLIBS]];
 
     //resolve LC_RPATHS imports
-    // ->need to do this, since we check to see if they exist, etc
+    // need to do this, since we check to see if they exist, etc
     binary.parserInstance.binaryInfo[KEY_LC_RPATHS] = [self resolvePaths:binary paths:binary.parserInstance.binaryInfo[KEY_LC_RPATHS]];
     
     //check if its hijacked
-    // ->set iVar within binary object
+    // set iVar within binary object
     [self scan4Hijack:binary];
     
     //check if its vulnerable
-    // ->note, no need to scan hijacked binaries
+    // note, no need to scan hijacked binaries
     if(YES != binary.isHijacked)
     {
         //scan
-        // ->sets iVar within binary obj
+        // sets iVar within binary obj
         [self scan4Vulnerable:binary];
     }
     
@@ -406,8 +436,7 @@ bail:
         //only report non-false positive
         if(YES != [self isFalsePositive:binary])
         {
-            //call back up to UI in main thread
-            // ->add binary to table
+            //call back up to UI in main thread to update
             dispatch_sync(dispatch_get_main_queue(), ^{
                 
                 //call back
@@ -668,12 +697,9 @@ bail:
             absoluteDylib = weakDylib;
         }
         
-        //check if doesn't exists
-        if(YES != [[NSFileManager defaultManager] fileExistsAtPath:absoluteDylib])
+        //is candidate (not found, not SIP'd etc)
+        if(YES == [self isCandidate:absoluteDylib])
         {
-            //not found
-            // ->could be hijacked!
-           
             //dbg msg
             //NSLog(@"OBJECTIVE-SEE INFO: %@ is vulnerable to a weak hijack", absoluteDylib);
             
@@ -731,11 +757,9 @@ bail:
         // ->first run path + path to dylib (with '@rpath') removed
         absoluteDylib = [firstRPathDirectory stringByAppendingPathComponent:[loadDylib substringFromIndex:[RUN_SEARCH_PATH length]]];
         
-        //check file doesn't exist
-        // ->non-existing in first run-path search directory means its vulnerable
-        if(YES != [[NSFileManager defaultManager] fileExistsAtPath:absoluteDylib])
+        //is candidate (not found, not SIP'd etc)
+        if(YES == [self isCandidate:absoluteDylib])
         {
-            
             //VULNERABILITY DETECTED!
             // ->dylib isn't found in first run-path search directory
         
@@ -966,10 +990,46 @@ bail:
     doMatch = YES;
     
     
-//bail
 bail:
     
     return doMatch;
+}
+
+//check the following
+// a. not found
+// b. not in cache
+// c. not in SIP directory
+-(BOOL)isCandidate:(NSString*)dylib
+{
+    BOOL isCandidate = NO;
+    
+    //exists?
+    if(YES == [[NSFileManager defaultManager] fileExistsAtPath:dylib])
+    {
+        //exists
+        goto bail;
+        
+    }
+    //is in dyld cache?
+    if(YES == isInCache(dylib))
+    {
+        //in cache
+        goto bail;
+    }
+    
+    //directory is SIP'd
+    if(YES == isSIPDirectory([dylib stringByDeletingLastPathComponent]))
+    {
+        //is SIP'd
+        goto bail;
+    }
+    
+    //candidate!
+    isCandidate = YES;
+    
+bail:
+    
+    return isCandidate;
 }
 
 //determine if a binary is a false positive
@@ -988,8 +1048,5 @@ bail:
     
     return isFalsePositive;
 }
-
-
-
 
 @end

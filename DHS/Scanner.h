@@ -6,8 +6,8 @@
 //  Copyright (c) 2015 Objective-See, LLC. All rights reserved.
 //
 
-#import "MachO.h"
 #import "Binary.h"
+#import "MachO/MachO.h"
 #import <Foundation/Foundation.h>
 
 @interface Scanner : NSObject

@@ -8,7 +8,6 @@
 #import "Consts.h"
 #import "Binary.h"
 #import "Scanner.h"
-#import "Exception.h"
 #import "Utilities.h"
 #import "AppDelegate.h"
 #import "PrefsWindowController.h"
@@ -54,10 +53,6 @@
 // init stuffz!
 -(void)applicationDidFinishLaunching:(NSNotification *)notification
 {
-    //first thing...
-    // ->install exception handlers!
-    installExceptionHandlers();
-    
     //alloc table array
     tableContents = [[NSMutableArray alloc] init];
     
@@ -105,16 +100,6 @@
         //make window front
         [NSApp activateIgnoringOtherApps:YES];
         
-    }
-    
-    //check that OS is supported
-    if(YES != isSupportedOS())
-    {
-        //show alert
-        [self showUnsupportedAlert];
-        
-        //exit
-        exit(0);
     }
     
     //init table
@@ -332,7 +317,7 @@ bail:
             tableCell.imageView.image = [NSImage imageNamed:@"virus"];
             
             //set count
-            [[tableCell viewWithTag:TABLE_HEADER_TOTAL_TAG] setStringValue:[NSString stringWithFormat:@"total: %lu", (unsigned long)self.hijackCount]];
+            [[tableCell viewWithTag:TABLE_HEADER_TOTAL_TAG] setStringValue:[NSString stringWithFormat:@"Total: %lu", (unsigned long)self.hijackCount]];
 
         }
         //header row for 'Vulnerable Applications'
@@ -342,7 +327,7 @@ bail:
             tableCell.imageView.image = [NSImage imageNamed:@"bug"];
             
             //set count
-            [[tableCell viewWithTag:TABLE_HEADER_TOTAL_TAG] setStringValue:[NSString stringWithFormat:@"total: %lu", (unsigned long)self.vulnerableCount]];
+            [[tableCell viewWithTag:TABLE_HEADER_TOTAL_TAG] setStringValue:[NSString stringWithFormat:@"Total: %lu", (unsigned long)self.vulnerableCount]];
         }
     }
     
@@ -547,7 +532,7 @@ bail:
         if(YES == self.prefsWindowController.fullScan)
         {
             //alloc/init alert
-            fullScanAlert = [NSAlert alertWithMessageText:@"a full system scan takes some time" defaultButton:@"OK" alternateButton:nil otherButton:nil informativeTextWithFormat:@"please relax while DHS crunches away :)"];
+            fullScanAlert = [NSAlert alertWithMessageText:@"A full system scan takes some time" defaultButton:@"OK" alternateButton:nil otherButton:nil informativeTextWithFormat:@"please relax while DHS crunches away :)"];
             
             //and show it
             [fullScanAlert runModal];
@@ -781,7 +766,7 @@ bail:
     if(0 == issueCount)
     {
         //happy
-        details = [NSMutableString stringWithString:@"nothing found :)"];
+        details = [NSMutableString stringWithString:@"Nothing Found :)"];
     }
     
     //init detailed msg
@@ -789,18 +774,18 @@ bail:
     else
     {
         //hrmmm
-        details = [NSMutableString stringWithFormat:@"■ found %lu possible issues", (unsigned long)issueCount];
+        details = [NSMutableString stringWithFormat:@"■ Found %lu possible issues", (unsigned long)issueCount];
         
         //add info about saving output
         if(YES == self.prefsWindowController.saveOutput)
         {
             //add save msg
-            [details appendFormat:@" \r\n■ saved findings to '%@'", OUTPUT_FILE];
+            [details appendFormat:@" \r\n■ Saved findings to '%@'", OUTPUT_FILE];
         }
     }
     
     //alloc/init alert
-    completedAlert = [NSAlert alertWithMessageText:@"dylib hijack scan results" defaultButton:@"OK" alternateButton:nil otherButton:nil informativeTextWithFormat:@"%@", details];
+    completedAlert = [NSAlert alertWithMessageText:@"Dylib Hijack Scan Results:" defaultButton:@"OK" alternateButton:nil otherButton:nil informativeTextWithFormat:@"%@", details];
     
     //show it
     [completedAlert runModal];
@@ -843,7 +828,7 @@ bail:
         headerRow = [self.resultsTableView viewAtColumn:0 row:0 makeIfNecessary:NO];
         
         //set 'total' text field
-        [[headerRow viewWithTag:TABLE_HEADER_TOTAL_TAG] setStringValue:[NSString stringWithFormat:@"total: %lu", (unsigned long)self.hijackCount]];
+        [[headerRow viewWithTag:TABLE_HEADER_TOTAL_TAG] setStringValue:[NSString stringWithFormat:@"Total: %lu", (unsigned long)self.hijackCount]];
     }
     //handle logic for vulnerable applications
     else
@@ -873,7 +858,7 @@ bail:
         headerRow = [self.resultsTableView viewAtColumn:0 row:MAX(self.hijackCount, 2) + 1 makeIfNecessary:NO];
         
         //set 'total' text field
-        [[headerRow viewWithTag:TABLE_HEADER_TOTAL_TAG] setStringValue:[NSString stringWithFormat:@"total: %lu", (unsigned long)self.vulnerableCount]];
+        [[headerRow viewWithTag:TABLE_HEADER_TOTAL_TAG] setStringValue:[NSString stringWithFormat:@"Total: %lu", (unsigned long)self.vulnerableCount]];
     }
     
     //force table re-draw
@@ -1314,7 +1299,7 @@ bail:
 {
     //open URL
     // ->invokes user's default browser
-    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://objective-see.com"]];
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://objective-see.org"]];
     
     return;
 }

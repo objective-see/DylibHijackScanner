@@ -9,42 +9,16 @@
 #import "Consts.h"
 #import "Utilities.h"
 
+#import <dlfcn.h>
+#import <mach-o/dyld.h>
 #import <Security/Security.h>
 #import <Foundation/Foundation.h>
 #import <Collaboration/Collaboration.h>
 
-//check if OS is supported
-BOOL isSupportedOS()
+//check if file is in cache
+BOOL isInCache(NSString* path)
 {
-    //return
-    BOOL isSupported = NO;
-    
-    //major version
-    SInt32 versionMajor = 0;
-    
-    //minor version
-    SInt32 versionMinor = 0;
-    
-    //get version info
-    if( (noErr != Gestalt(gestaltSystemVersionMajor, &versionMajor)) ||
-        (noErr != Gestalt(gestaltSystemVersionMinor, &versionMinor)) )
-    {
-        //err
-        goto bail;
-    }
-    
-    //check that OS is supported
-    // ->10.8+ ?
-    if(versionMajor == 10 && versionMinor >= 8)
-    {
-        //set flag
-        isSupported = YES;
-    }
-    
-//bail
-bail:
-    
-    return isSupported;
+    return _dyld_shared_cache_contains_path(path.UTF8String);
 }
 
 //check if a file is an executable
@@ -93,7 +67,7 @@ BOOL isURLExecutable(NSURL* appURL)
 NSDictionary* signingInfo(NSString* path)
 {
     //info dictionary
-    NSMutableDictionary* signingStatus = nil;
+    NSMutableDictionary* signingInfo = nil;
     
     //code
     SecStaticCodeRef staticCode = NULL;
@@ -122,8 +96,8 @@ NSDictionary* signingInfo(NSString* path)
     //common name on chert
     CFStringRef commonName = NULL;
     
-    //init signing status
-    signingStatus = [NSMutableDictionary dictionary];
+    //init signing info
+    signingInfo = [NSMutableDictionary dictionary];
     
     //only once
     // init requirements
@@ -146,7 +120,7 @@ NSDictionary* signingInfo(NSString* path)
     status = SecStaticCodeCheckValidity(staticCode, kSecCSDoNotValidateResources, NULL);
     
     //save signature status
-    signingStatus[KEY_SIGNATURE_STATUS] = [NSNumber numberWithInt:status];
+    signingInfo[KEY_SIGNATURE_STATUS] = [NSNumber numberWithInt:status];
     
     //if file is signed
     // check if signed by apple, library validation, and grab signing authorities
@@ -160,23 +134,37 @@ NSDictionary* signingInfo(NSString* path)
             goto bail;
         }
         
-        //check if signed by apple
+        //signed by apple?
         if(STATUS_SUCCESS == SecStaticCodeCheckValidity(staticCode, kSecCSDefaultFlags, isApple))
         {
             //signed by apple
-            signingStatus[KEY_IS_APPLE] = [NSNumber numberWithInt:YES];
+            signingInfo[KEY_IS_APPLE] = [NSNumber numberWithInt:YES];
         }
         
         //library validation enabled?
         if(FLAGS_LIBRARY_VALIDATION == ([[(__bridge NSDictionary*)signingInformation objectForKey:(__bridge NSString*)kSecCodeInfoFlags] unsignedIntegerValue] & FLAGS_LIBRARY_VALIDATION))
         {
             //library validation
-            signingStatus[KEY_LIBRARY_VALIDATION] = [NSNumber numberWithInt:YES];
+            signingInfo[KEY_LIBRARY_VALIDATION] = [NSNumber numberWithInt:YES];
+        }
+        
+        //hardened runtime enabled?
+        if(FLAG_HARDENED_RUNTIME == ([[(__bridge NSDictionary*)signingInformation objectForKey:(__bridge NSString*)kSecCodeInfoFlags] unsignedIntegerValue] & FLAG_HARDENED_RUNTIME))
+        {
+            //library validation
+            signingInfo[KEY_HARDENED_RUNTIME] = [NSNumber numberWithInt:YES];
+        }
+        
+        //grab entitlements
+        if(nil != [(__bridge NSDictionary*)signingInformation objectForKey:(__bridge NSString*)kSecCodeInfoEntitlementsDict])
+        {
+                //extract/save
+                signingInfo[KEY_SIGNING_ENTITLEMENTS] = [(__bridge NSDictionary*)signingInformation objectForKey:(__bridge NSString*)kSecCodeInfoEntitlementsDict];
         }
     }
     
     //init array for certificate names
-    signingStatus[KEY_SIGNING_AUTHORITIES] = [NSMutableArray array];
+    signingInfo[KEY_SIGNING_AUTHORITIES] = [NSMutableArray array];
     
     //get cert chain
     certificateChain = [(__bridge NSDictionary*)signingInformation objectForKey:(__bridge NSString*)kSecCodeInfoCertificates];
@@ -199,7 +187,7 @@ NSDictionary* signingInfo(NSString* path)
         }
         
         //save
-        [signingStatus[KEY_SIGNING_AUTHORITIES] addObject:(__bridge NSString*)commonName];
+        [signingInfo[KEY_SIGNING_AUTHORITIES] addObject:(__bridge NSString*)commonName];
         
         //release name
         CFRelease(commonName);
@@ -221,7 +209,7 @@ bail:
         CFRelease(staticCode);
     }
     
-    return signingStatus;
+    return signingInfo;
 }
 
 //get an icon for a process
@@ -527,4 +515,27 @@ NSMutableArray* expandPaths(const __strong NSString* const paths[], int count)
     }
     
     return expandedPaths;
+}
+
+//check if directory is SIP'd
+BOOL isSIPDirectory(NSString* path)
+{
+    //flag
+    BOOL isRestricted = YES;
+    
+    //attributes
+    NSDictionary* attributes = nil;
+    
+    //get attributes
+    attributes = [NSFileManager.defaultManager attributesOfItemAtPath:path error:nil];
+    if(attributes != nil) {
+        
+        //check rootless
+        isRestricted =
+         [attributes[NSFileImmutable] boolValue] ||
+         [attributes[@"com.apple.rootless"] boolValue] ||
+         [attributes[@"com.apple.rootless.restricted"] boolValue];
+    }
+    
+    return isRestricted;
 }
