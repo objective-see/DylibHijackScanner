@@ -160,7 +160,7 @@ NSString * const PROTECTED_DIRECTORIES[] = {@"~/Library/Application Support/Addr
             //skip
             continue;
         }
-        
+    
         //save it
         [self.scannedBinaries addObject:fileURL.URLByResolvingSymlinksInPath.path];
         
@@ -360,7 +360,8 @@ bail:
         goto bail;
     }
     
-    //skip dylibs!
+    //TODO: or not?
+    //skip any dylibs!
     if(MH_EXECUTE != [binary getType])
     {
         //skip
@@ -1003,8 +1004,10 @@ bail:
 {
     BOOL isCandidate = NO;
     
+    NSString* directory = [dylib stringByDeletingLastPathComponent];
+    
     //exists?
-    if(YES == [[NSFileManager defaultManager] fileExistsAtPath:dylib])
+    if(YES == [NSFileManager.defaultManager fileExistsAtPath:dylib])
     {
         //exists
         goto bail;
@@ -1017,12 +1020,23 @@ bail:
         goto bail;
     }
     
-    //directory is SIP'd
-    if(YES == isSIPDirectory([dylib stringByDeletingLastPathComponent]))
+    //check directory
+    while (![NSFileManager.defaultManager fileExistsAtPath:directory]) {
+        directory = [directory stringByDeletingLastPathComponent];
+        
+        //safety
+        if ([directory isEqualToString:@"/"] || directory.length == 0) {
+            break;
+        }
+    }
+    
+    //(parent) directory is SIP'd
+    if(YES == isSIPDirectory(directory))
     {
         //is SIP'd
         goto bail;
     }
+    
     
     //candidate!
     isCandidate = YES;

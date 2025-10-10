@@ -10,6 +10,7 @@
 #import "Utilities.h"
 
 #import <dlfcn.h>
+#import <sys/stat.h>
 #import <mach-o/dyld.h>
 #import <Security/Security.h>
 #import <Foundation/Foundation.h>
@@ -43,7 +44,7 @@ BOOL isURLExecutable(NSURL* appURL)
     if(NULL != archArrayRef)
     {
         //set flag
-        isExecutable = [(__bridge NSArray*)archArrayRef containsObject:[NSNumber numberWithInt:kCFBundleExecutableArchitectureX86_64]] || [(__bridge NSArray*)archArrayRef containsObject:[NSNumber numberWithInt:kCFBundleExecutableArchitectureI386]];
+        isExecutable = [(__bridge NSArray*)archArrayRef containsObject:[NSNumber numberWithInt:kCFBundleExecutableArchitectureX86_64]] || [(__bridge NSArray*)archArrayRef containsObject:[NSNumber numberWithInt:kCFBundleExecutableArchitectureARM64]];
     }
     
     //free bundle url
@@ -397,7 +398,7 @@ bail:
 
 //get all user
 // includes name/home directory
-NSMutableDictionary* allUsers()
+NSMutableDictionary* allUsers(void)
 {
     //users
     NSMutableDictionary* users = nil;
@@ -518,24 +519,11 @@ NSMutableArray* expandPaths(const __strong NSString* const paths[], int count)
 }
 
 //check if directory is SIP'd
-BOOL isSIPDirectory(NSString* path)
-{
-    //flag
-    BOOL isRestricted = YES;
-    
-    //attributes
-    NSDictionary* attributes = nil;
-    
-    //get attributes
-    attributes = [NSFileManager.defaultManager attributesOfItemAtPath:path error:nil];
-    if(attributes != nil) {
-        
-        //check rootless
-        isRestricted =
-         [attributes[NSFileImmutable] boolValue] ||
-         [attributes[@"com.apple.rootless"] boolValue] ||
-         [attributes[@"com.apple.rootless.restricted"] boolValue];
+BOOL isSIPDirectory(NSString* path) {
+    struct stat fileStat;
+    if (stat([path UTF8String], &fileStat) == 0) {
+        //SF_RESTRICTED flag (SIP protection)?
+        return (fileStat.st_flags & SF_RESTRICTED) != 0;
     }
-    
-    return isRestricted;
+    return NO;
 }
